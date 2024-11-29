@@ -14,11 +14,10 @@ jobs:
       - name: excuting remote ssh commands
         uses: appleboy/ssh-action@v0.1.6 # ssh 접속하는 오픈소스
         with:
-          host: i-0d67d867a0a68f702 # 인스턴스 IP
-          username: ubuntu # 우분투 아이디
-          key: key-04eefb2be5f311f02 # ec2 instance pem key
-          port: 80 # 접속포트
-          script: | # 실행할 스크립트
+          host: ${{ secrets.REMOTE_IP }} # 인스턴스 IP
+          username: ${{ secrets.REMOTE_USER }} # 우분투 아이디
+          key: ${{ secrets.REMOTE_PRIVATE_KEY }} # ec2 instance pem key
+          port: ${{ secrets.REMOTE_SSH_PORT }} # 접속포트
             cd ~/YoursTruly
             git pull origin main
             pm2 kill
