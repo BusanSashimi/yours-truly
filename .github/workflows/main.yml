@@ -1,0 +1,27 @@
+# main.yml
+name: main branch auto ci process script
+
+on: # 아래 job을 실행시킬 상황
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest # 실행될 인스턴스 OS와 버전
+
+    steps:
+      - name: excuting remote ssh commands
+        uses: appleboy/ssh-action@v0.1.6 # ssh 접속하는 오픈소스
+        with:
+          host: i-0d67d867a0a68f702 # 인스턴스 IP
+          username: ubuntu # 우분투 아이디
+          key: key-04eefb2be5f311f02 # ec2 instance pem key
+          port: 80 # 접속포트
+          script: | # 실행할 스크립트
+            cd ~/YoursTruly
+            git pull origin main
+            pm2 kill
+            npm i --force
+            npm run build
+            pm2 start nmp --name yours-truly -- start
