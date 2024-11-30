@@ -17,7 +17,7 @@ export default function Home() {
           <li>
             Get started by editing <code>src/app/page.tsx</code>.
           </li>
-          <li>Let's See Some Changes Here.</li>
+          <li>Lets See Some Changes Here.</li>
         </ol>
 
         <div className={styles.ctas}>
