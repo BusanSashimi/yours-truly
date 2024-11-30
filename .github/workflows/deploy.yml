@@ -33,7 +33,7 @@ jobs:
 
       # 프로젝트를 빌드한다.
       - name: Build next app
-        run: npm build
+        run: npm run build
 
       # S3에 올리기 전 빌드파일을 압축해준다.
       # 여기서 $GITHUB_SHA라는 값을 사용하는데 이 값은 Github에서 기본적으로 제공하는 환경변수다.
