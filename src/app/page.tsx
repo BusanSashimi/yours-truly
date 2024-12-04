@@ -17,7 +17,7 @@ export default function Home() {
           <li>
             Get started by editing <code>src/app/page.tsx</code>.
           </li>
-          <li>Lets See Some Changes Here.</li>
+          <li>Check If the CICD is Complete.</li>
         </ol>
 
         <div className={styles.ctas}>
