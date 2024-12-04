@@ -1,29 +1,7 @@
 version: 0.0
 os: linux
-
-files:
-  - source: /
-    destination: /home/ubuntu/YoursTruly
-    overwrite: true
-file_exists_behavior: OVERWRITE
-
-permissions:
-  - object: /home/ubuntu/YoursTruly/scripts
-    pattern: "**"
-    owner: ubuntu
-    group: ubuntu
-    mode: 777
-    type :
-      - file
-
-
 hooks:
-
-  BeforeInstall:
-
-  AfterInstall:
-
   ApplicationStart:
-    - location: scripts/app_start.sh
-      timeout: 2500
+    - location: deploy.sh
+      timeout: 300
       runas: ubuntu
