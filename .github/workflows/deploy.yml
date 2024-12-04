@@ -50,10 +50,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
 
-      # Make zip file 단계에서 압축된 빌드 파일을 S3 버킷에 업로드하는 단계이다.
-      - name: Upload to S3
-        run: aws s3 cp --region us-east-1 ./$GITHUB_SHA.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
-
       # S3에 업로드 된 빌드 파일을 이용해 CodeDeploy가 정의된 동작을 하도록 트리거해주는 단계이다.
       # CodeDeploy의 동작에 대한 정의는 다음편에서 다뤄볼것이다.
       - name: Code Deploy
@@ -62,4 +58,3 @@ jobs:
           --deployment-config-name CodeDeployDefault.AllAtOnce \
           --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
           --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
-          --s3-location bucket=$S3_BUCKET_NAME,bundleType=zip,key=$GITHUB_SHA.zip
