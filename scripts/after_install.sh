@@ -1,4 +1,4 @@
 #!/bin/bash
 cd /home/ubuntu/yourapp
-npm ci
+npm install
 npm run build

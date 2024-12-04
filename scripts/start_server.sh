@@ -1,3 +1,3 @@
 #!/bin/bash
-cd /home/ubuntu/yourapp
+cd ~/YoursTruly
 pm2 start npm --name yours-truly -- run start
