@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf ~/YoursTruly/*
+rm -rf /home/ubuntu/YoursTruly/*
