@@ -1,2 +1,2 @@
 #!/bin/bash
-rm -rf /home/ubuntu/YoursTruly/*
+sudo rm -rf /home/ubuntu/YoursTruly/*
