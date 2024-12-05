@@ -1,4 +1,4 @@
 #!/bin/bash
-cd /home/ubuntu/YoursTruly
+cd /home/ubuntu/yours-truly
 npm install
 npm run build
