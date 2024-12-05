@@ -1,4 +1,4 @@
 #!/bin/bash
 cd /home/ubuntu/yours-truly
-npm ci
+npm install
 npm run build
