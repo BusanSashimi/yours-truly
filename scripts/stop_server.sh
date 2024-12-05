@@ -1,2 +1,2 @@
 #!/bin/bash
-pm2 delete yours-truly || true
+pm2 stop yours-truly
