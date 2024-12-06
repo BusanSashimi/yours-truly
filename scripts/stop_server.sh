@@ -1,2 +1,2 @@
 #!/bin/bash
-pm2 delete yours-truly || true
+/home/ubuntu/.nvm/versions/node/v22.12.0/bin/pm2 delete yours-truly || true
