@@ -4,5 +4,5 @@ export NVM_DIR="/home/ubuntu/.nvm"
 echo "IS this working"
 echo "$PATH"
 cd /home/ubuntu/yours-truly
-npm install
-npm run build
+sudo npm install
+sudo npm run build
