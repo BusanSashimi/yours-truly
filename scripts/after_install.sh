@@ -4,5 +4,5 @@ export NVM_DIR="/home/ubuntu/.nvm"
 echo "$PATH"
 cd /home/ubuntu/yours-truly
 npm cache verify
-npm ci
+npm isntall
 npm run build
