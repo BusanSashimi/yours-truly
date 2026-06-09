@@ -1,0 +1,20 @@
+# yours-truly API (Fastify). Install as /etc/systemd/system/yt-api.service.
+# Runs from the deploy clone that yt-deploy.sh builds; restarted on each deploy.
+[Unit]
+Description=yours-truly API (Fastify)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/deploy-src/apps/api
+EnvironmentFile=/etc/yours-truly/api.env
+ExecStart=/home/ubuntu/.nvm/versions/node/v22.12.0/bin/node dist/server.js
+Restart=on-failure
+RestartSec=2
+Nice=10
+
+[Install]
+WantedBy=multi-user.target
