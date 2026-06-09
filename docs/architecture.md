@@ -168,10 +168,11 @@ slotted in at any stage once traffic warrants it.
    (root:ubuntu 640). Infra-as-code + runbook in `deploy/`.
 6. **DB on RDS (2026-06-09).** `yt-prod` — `db.t4g.small`, Postgres 16.14,
    single-AZ, 20GB gp3, 7-day backups, **private** (SG `yt-rds-sg` allows 5432
-   only from the app EC2's SG; not publicly accessible). The app connects with
-   `?sslmode=require` (RDS rejects unencrypted). Local Postgres has been stopped
-   and disabled. **Hardening TODO:** upgrade `require` → `verify-full` with the
-   RDS CA bundle; consider Multi-AZ when uptime demands it.
+   only from the app EC2's SG; not publicly accessible). App **and** migrations
+   connect with **TLS verify-full** (chain + hostname) against the RDS CA bundle
+   at `/etc/yours-truly/rds-ca.pem`, driven by the `DATABASE_CA` env var (unset
+   locally → no SSL). Local Postgres has been stopped and disabled. **Remaining:**
+   consider Multi-AZ when uptime demands it.
 
 ### Local dev quick-start
 

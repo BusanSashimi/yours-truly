@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { after, before, beforeEach, test } from "node:test";
 import { sql } from "drizzle-orm";
 import type { LightMyRequestResponse } from "fastify";
-import { db } from "../db/index.js";
+import { closeDb, db } from "../db/index.js";
 import { buildServer } from "../server.js";
 
 const app = buildServer();
@@ -13,6 +13,7 @@ before(async () => {
 
 after(async () => {
   await app.close();
+  await closeDb();
 });
 
 beforeEach(async () => {
