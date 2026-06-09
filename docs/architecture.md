@@ -138,8 +138,9 @@ Ordered by when it tends to matter — don't pre-build these.
 
 1. **Now — single EC2 + local Postgres.** Cheapest, full control, maximal
    continuity with the existing pipeline. Single point of failure; manual scaling.
-2. **Before launch — move DB to RDS Postgres.** Managed backups, point-in-time
-   restore, failover. You do not want to hand-manage a DB holding user accounts.
+2. ~~**Before launch — move DB to RDS Postgres.**~~ **Done (2026-06-09):**
+   `yt-prod`, db.t4g.small single-AZ, private, SSL-required. Managed backups +
+   point-in-time restore. Multi-AZ failover is the next upgrade when needed.
 3. **Traffic grows — separate web/api onto their own instances** behind an
    **ALB**; add an autoscaling group for the stateless tiers.
 4. **Resilience / spiky load — containerize (Docker) → ECS Fargate.** No servers
@@ -164,8 +165,13 @@ slotted in at any stage once traffic warrants it.
    `yt-api` :4000) run from the deploy clone; nginx proxies `/`→web, `/api/`→API
    over HTTPS; `yt-deploy.sh` builds both apps, runs migrations, restarts services,
    and smoke-checks both tiers; secrets live in `/etc/yours-truly/api.env`
-   (root:ubuntu 640). Postgres is **local on the box for now — move to RDS before
-   real users.** Infra-as-code + runbook in `deploy/`.
+   (root:ubuntu 640). Infra-as-code + runbook in `deploy/`.
+6. **DB on RDS (2026-06-09).** `yt-prod` — `db.t4g.small`, Postgres 16.14,
+   single-AZ, 20GB gp3, 7-day backups, **private** (SG `yt-rds-sg` allows 5432
+   only from the app EC2's SG; not publicly accessible). The app connects with
+   `?sslmode=require` (RDS rejects unencrypted). Local Postgres has been stopped
+   and disabled. **Hardening TODO:** upgrade `require` → `verify-full` with the
+   RDS CA bundle; consider Multi-AZ when uptime demands it.
 
 ### Local dev quick-start
 
