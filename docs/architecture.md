@@ -160,7 +160,11 @@ slotted in at any stage once traffic warrants it.
 4. ~~Add auth with cookie sessions + a `users` table.~~ **Done** — scrypt
    password hashing + signed httpOnly session cookies; register/login/logout/me
    verified end-to-end against a live Postgres.
-5. Wire systemd units + extend `yt-deploy.sh`; move secrets to SSM/env.
+5. **Authored (not yet applied):** systemd units (`yt-web`, `yt-api`), nginx
+   SSR+API server block, monorepo `yt-deploy.sh`, and an EnvironmentFile template
+   — all under `deploy/` with a gated cutover runbook in `deploy/README.md`.
+   The live cutover (swap nginx, start services, push to `origin/main`) is
+   deliberately held pending review.
 
 ### Local dev quick-start
 
