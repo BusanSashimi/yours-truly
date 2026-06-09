@@ -160,11 +160,12 @@ slotted in at any stage once traffic warrants it.
 4. ~~Add auth with cookie sessions + a `users` table.~~ **Done** — scrypt
    password hashing + signed httpOnly session cookies; register/login/logout/me
    verified end-to-end against a live Postgres.
-5. **Authored (not yet applied):** systemd units (`yt-web`, `yt-api`), nginx
-   SSR+API server block, monorepo `yt-deploy.sh`, and an EnvironmentFile template
-   — all under `deploy/` with a gated cutover runbook in `deploy/README.md`.
-   The live cutover (swap nginx, start services, push to `origin/main`) is
-   deliberately held pending review.
+5. **Done — applied to the EC2 box (2026-06-09).** systemd units (`yt-web` :3000,
+   `yt-api` :4000) run from the deploy clone; nginx proxies `/`→web, `/api/`→API
+   over HTTPS; `yt-deploy.sh` builds both apps, runs migrations, restarts services,
+   and smoke-checks both tiers; secrets live in `/etc/yours-truly/api.env`
+   (root:ubuntu 640). Postgres is **local on the box for now — move to RDS before
+   real users.** Infra-as-code + runbook in `deploy/`.
 
 ### Local dev quick-start
 
