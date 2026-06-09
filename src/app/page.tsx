@@ -17,7 +17,7 @@ export default function Home() {
           <li>
             Get started by editing <code>src/app/page.tsx</code>.
           </li>
-          <li>Lets See Some Changes Here.</li>
+          <li>Please Work Again Please</li>
         </ol>
 
         <div className={styles.ctas}>
@@ -42,7 +42,7 @@ export default function Home() {
             rel="noopener noreferrer"
             className={styles.secondary}
           >
-            Read our docs
+            Fuck You
           </a>
         </div>
       </main>
