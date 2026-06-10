@@ -1,0 +1,12 @@
+# yours-truly auto-deploy schedule. Install as /etc/systemd/system/yt-deploy.timer.
+# Each tick is cheap: a git fetch, and a no-op exit unless origin/main moved.
+[Unit]
+Description=Run yt-deploy.service every 5 minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+RandomizedDelaySec=20
+
+[Install]
+WantedBy=timers.target

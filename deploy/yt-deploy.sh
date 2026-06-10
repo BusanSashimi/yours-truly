@@ -2,18 +2,22 @@
 # yt-deploy.sh — pull-based auto-deploy for "yours-truly" (pnpm monorepo:
 # Next.js SSR web + Fastify API + Postgres). Install as /usr/local/bin/yt-deploy.sh.
 #
-# Builds origin/main in the dedicated clone (/home/ubuntu/deploy-src), runs DB
-# migrations, restarts the long-running services, and verifies both tiers with a
-# smoke check before recording the deployed SHA. SHA-gated (no-ops when unchanged)
-# and single-flight (flock).
+# Builds origin/main in the dedicated clone (/opt/yours-truly, owned by ytapp —
+# run this script as ytapp), runs DB migrations, restarts the long-running
+# services, and verifies both tiers with a smoke check before recording the
+# deployed SHA. SHA-gated (no-ops when unchanged), single-flight (flock), and
+# CI-gated: a commit is only deployed once its GitHub Actions checks are green.
 #
 # NOTE: unlike the previous static-export deploy, the running services execute
 # directly from the build clone (a Node server can't be swapped by an atomic
-# symlink the way static files can). Rollback is therefore git-based:
-#   cd /opt/yours-truly && git reset --hard <prev-sha> && /usr/local/bin/yt-deploy.sh
+# symlink the way static files can). Rollback is therefore git-based — revert on
+# origin/main and let the pipeline ship it (a local reset would be undone by the
+# next timer tick):
+#   git revert <bad-sha> && git push   # then CI runs and this script deploys it
 set -Euo pipefail
 
 REPO=/opt/yours-truly
+REPO_SLUG=BusanSashimi/yours-truly
 MARKER=/var/www/yours-truly/.deployed_sha
 LOCKFILE=/tmp/yt-deploy.lock
 DOMAIN=yourstruly.it
@@ -36,7 +40,28 @@ if [ "$NEW_SHA" = "$CUR_SHA" ]; then
   exit 0
 fi
 
-log "change detected: ${CUR_SHA:0:7} -> ${NEW_SHA:0:7}; building"
+# CI gate: deploy only commits whose GitHub Actions checks all completed
+# successfully. Unauthenticated API is fine (public repo), and it is only
+# consulted when origin/main actually moved, so rate limits are a non-issue.
+if ! CHECKS="$(curl -fsS --max-time 15 -H 'Accept: application/vnd.github+json' \
+      "https://api.github.com/repos/$REPO_SLUG/commits/$NEW_SHA/check-runs?per_page=100")"; then
+  log "GitHub checks API unreachable; retrying next run"; exit 0
+fi
+TOTAL="$(jq -r '.total_count' <<<"$CHECKS")"
+PENDING="$(jq -r '[.check_runs[] | select(.status != "completed")] | length' <<<"$CHECKS")"
+BAD="$(jq -r '[.check_runs[] | select(.status == "completed"
+        and .conclusion != "success" and .conclusion != "skipped"
+        and .conclusion != "neutral")] | length' <<<"$CHECKS")"
+if [ "$TOTAL" -eq 0 ] || [ "$PENDING" -gt 0 ]; then
+  log "CI not finished for ${NEW_SHA:0:7} ($TOTAL checks, $PENDING pending); retrying next run"
+  exit 0
+fi
+if [ "$BAD" -gt 0 ]; then
+  log "CI FAILED for ${NEW_SHA:0:7} ($BAD failing check(s)); REFUSING to deploy — fix or revert main"
+  exit 1
+fi
+
+log "change detected: ${CUR_SHA:0:7} -> ${NEW_SHA:0:7}, CI green ($TOTAL checks); building"
 git reset --hard --quiet origin/main
 
 # Build (a failure here never touches the running services).

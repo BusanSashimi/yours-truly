@@ -1,0 +1,50 @@
+# CI for the pnpm monorepo. Runs on every PR and push to main; the prod box's
+# pull deploy (deploy/yt-deploy.sh) refuses to ship a commit until these checks
+# complete successfully, so this workflow IS the deploy gate.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    name: ci # referenced by branch protection and the deploy gate — rename with care
+    runs-on: ubuntu-latest
+    services:
+      # Matches the hardcoded test DATABASE_URL in apps/api package.json.
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: yt
+          POSTGRES_PASSWORD: ytpass
+          POSTGRES_DB: yours_truly_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U yt"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4 # version comes from packageManager in package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @yours-truly/shared build
+      # Web build comes before typecheck: it generates next-env.d.ts (gitignored),
+      # without which CSS-module imports don't typecheck in a fresh checkout.
+      - run: pnpm --filter @yours-truly/web build
+      - run: pnpm --recursive typecheck
+      - run: pnpm --recursive lint
+      - name: API tests
+        env:
+          DATABASE_URL: postgres://yt:ytpass@localhost:5432/yours_truly_test
+        run: |
+          pnpm --filter @yours-truly/api db:migrate
+          pnpm --filter @yours-truly/api test
+      - run: pnpm --filter @yours-truly/api build

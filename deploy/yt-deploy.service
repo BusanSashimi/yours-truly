@@ -1,0 +1,16 @@
+# yours-truly auto-deploy (oneshot). Install as /etc/systemd/system/yt-deploy.service.
+# Driven by yt-deploy.timer; also safe to run by hand: sudo systemctl start yt-deploy
+[Unit]
+Description=yours-truly pull deploy (build origin/main when CI is green)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=ytapp
+Group=ytapp
+# pnpm needs a writable HOME for its store/cache; ytapp's home is the deploy clone.
+Environment=HOME=/opt/yours-truly
+ExecStart=/usr/local/bin/yt-deploy.sh
+# No NoNewPrivileges here (unlike yt-api/yt-web): the script legitimately
+# escalates through the narrow sudoers rule (systemctl restart yt-api yt-web).
