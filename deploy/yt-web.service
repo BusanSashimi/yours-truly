@@ -11,7 +11,9 @@ User=ytapp
 Group=ytapp
 WorkingDirectory=/opt/yours-truly/apps/web
 Environment=NODE_ENV=production
-ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
+# -H 127.0.0.1: only nginx on this host may reach the app server directly —
+# the SG already filters :3000, this removes the dependence on it.
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000 -H 127.0.0.1
 Restart=on-failure
 RestartSec=2
 Nice=10

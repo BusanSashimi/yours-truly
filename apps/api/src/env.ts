@@ -3,6 +3,10 @@ import { z } from "zod";
 /** Validate process env once at boot so misconfig fails fast and loud. */
 const envSchema = z.object({
   DATABASE_URL: z.string().url(),
+  // Bind address. Localhost by default: only nginx on the same host should
+  // reach the API directly. Set HOST=0.0.0.0 only if off-box clients must
+  // connect without a proxy.
+  HOST: z.string().default("127.0.0.1"),
   PORT: z.coerce.number().default(4000),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
   SESSION_SECRET: z.string().min(16),
