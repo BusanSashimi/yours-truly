@@ -7,14 +7,19 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=ubuntu
-Group=ubuntu
-WorkingDirectory=/home/ubuntu/deploy-src/apps/web
+User=ytapp
+Group=ytapp
+WorkingDirectory=/opt/yours-truly/apps/web
 Environment=NODE_ENV=production
-ExecStart=/home/ubuntu/.nvm/versions/node/v22.12.0/bin/node node_modules/next/dist/bin/next start -p 3000
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
 Restart=on-failure
 RestartSec=2
 Nice=10
+# Containment: a web-tier RCE stays an unprivileged, sandboxed process.
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=full
 
 [Install]
 WantedBy=multi-user.target

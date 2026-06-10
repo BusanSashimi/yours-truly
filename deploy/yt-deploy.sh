@@ -10,16 +10,16 @@
 # NOTE: unlike the previous static-export deploy, the running services execute
 # directly from the build clone (a Node server can't be swapped by an atomic
 # symlink the way static files can). Rollback is therefore git-based:
-#   cd /home/ubuntu/deploy-src && git reset --hard <prev-sha> && /usr/local/bin/yt-deploy.sh
+#   cd /opt/yours-truly && git reset --hard <prev-sha> && /usr/local/bin/yt-deploy.sh
 set -Euo pipefail
 
-REPO=/home/ubuntu/deploy-src
+REPO=/opt/yours-truly
 MARKER=/var/www/yours-truly/.deployed_sha
 LOCKFILE=/tmp/yt-deploy.lock
 DOMAIN=yourstruly.it
 ENV_FILE=/etc/yours-truly/api.env
 
-export PATH="/home/ubuntu/.nvm/versions/node/v22.12.0/bin:$PATH"
+export PATH="/usr/local/bin:/usr/bin:$PATH"
 log() { echo "[$(date '+%F %T')] $*"; }
 
 # Single-flight: never let two deploys overlap.
