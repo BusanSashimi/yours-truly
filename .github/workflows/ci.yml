@@ -41,6 +41,8 @@ jobs:
       - run: pnpm --filter @yours-truly/web build
       - run: pnpm --recursive typecheck
       - run: pnpm --recursive lint
+      - name: shared tests
+        run: pnpm --filter @yours-truly/shared test
       - name: API tests
         env:
           DATABASE_URL: postgres://yt:ytpass@localhost:5432/yours_truly_test

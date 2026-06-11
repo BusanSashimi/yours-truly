@@ -15,12 +15,15 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsc -p tsconfig.json --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "echo \"(no lint configured for shared)\""
+    "lint": "echo \"(no lint configured for shared)\"",
+    "test": "node --import tsx --test src/slug.test.ts"
   },
   "dependencies": {
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@types/node": "^20.17.6",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }
 }
