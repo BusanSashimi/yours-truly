@@ -1,5 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
-import type { FastifyInstance, FastifyReply } from "fastify";
+import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import {
   createInvitationInputSchema,
   updateInvitationInputSchema,
@@ -8,11 +8,18 @@ import {
   type InvitationResponse,
 } from "@yours-truly/shared";
 import { z } from "zod";
-import { getSessionUser } from "../auth/session.js";
+import { fromNodeHeaders } from "better-auth/node";
+import { auth } from "../auth/auth.js";
 import { db, schema } from "../db/index.js";
 import type { InvitationRow } from "../db/schema.js";
 
 const uuidSchema = z.string().uuid();
+
+/** Resolve the signed-in user's id from the Better Auth session cookie. */
+async function sessionUserId(request: FastifyRequest): Promise<string | null> {
+  const session = await auth.api.getSession({ headers: fromNodeHeaders(request.headers) });
+  return session?.user.id ?? null;
+}
 
 /** Map a DB row to the client-safe invitation shape (never leaks the owner id). */
 function toPublicInvitation(row: InvitationRow): Invitation {
@@ -82,8 +89,8 @@ function slugTaken(reply: FastifyReply) {
 export async function invitationRoutes(app: FastifyInstance) {
   // POST /api/invitations
   app.post("/", async (request, reply) => {
-    const user = await getSessionUser(request);
-    if (!user) return unauthenticated(reply);
+    const userId = await sessionUserId(request);
+    if (!userId) return unauthenticated(reply);
 
     const parsed = createInvitationInputSchema.safeParse(request.body);
     if (!parsed.success) return invalidInput(reply, parsed.error.message);
@@ -92,7 +99,7 @@ export async function invitationRoutes(app: FastifyInstance) {
       const [row] = await db
         .insert(schema.invitations)
         .values({
-          userId: user.id,
+          userId,
           slug: parsed.data.slug,
           design: parsed.data.design ?? {},
         })
@@ -107,13 +114,13 @@ export async function invitationRoutes(app: FastifyInstance) {
 
   // GET /api/invitations — the signed-in user's invitations, latest first
   app.get("/", async (request, reply) => {
-    const user = await getSessionUser(request);
-    if (!user) return unauthenticated(reply);
+    const userId = await sessionUserId(request);
+    if (!userId) return unauthenticated(reply);
 
     const rows = await db
       .select()
       .from(schema.invitations)
-      .where(eq(schema.invitations.userId, user.id))
+      .where(eq(schema.invitations.userId, userId))
       .orderBy(desc(schema.invitations.updatedAt));
     const body: InvitationListResponse = { invitations: rows.map(toPublicInvitation) };
     return reply.send(body);
@@ -137,11 +144,11 @@ export async function invitationRoutes(app: FastifyInstance) {
 
   // GET /api/invitations/:id — owner only; drafts included
   app.get("/:id", async (request, reply) => {
-    const user = await getSessionUser(request);
-    if (!user) return unauthenticated(reply);
+    const userId = await sessionUserId(request);
+    if (!userId) return unauthenticated(reply);
 
     const { id } = request.params as { id: string };
-    const row = await findOwned(id, user.id);
+    const row = await findOwned(id, userId);
     if (!row) return notFound(reply);
     const body: InvitationResponse = { invitation: toPublicInvitation(row) };
     return reply.send(body);
@@ -149,14 +156,14 @@ export async function invitationRoutes(app: FastifyInstance) {
 
   // PATCH /api/invitations/:id
   app.patch("/:id", async (request, reply) => {
-    const user = await getSessionUser(request);
-    if (!user) return unauthenticated(reply);
+    const userId = await sessionUserId(request);
+    if (!userId) return unauthenticated(reply);
 
     const parsed = updateInvitationInputSchema.safeParse(request.body);
     if (!parsed.success) return invalidInput(reply, parsed.error.message);
 
     const { id } = request.params as { id: string };
-    const existing = await findOwned(id, user.id);
+    const existing = await findOwned(id, userId);
     if (!existing) return notFound(reply);
 
     try {
@@ -175,11 +182,11 @@ export async function invitationRoutes(app: FastifyInstance) {
 
   // DELETE /api/invitations/:id
   app.delete("/:id", async (request, reply) => {
-    const user = await getSessionUser(request);
-    if (!user) return unauthenticated(reply);
+    const userId = await sessionUserId(request);
+    if (!userId) return unauthenticated(reply);
 
     const { id } = request.params as { id: string };
-    const existing = await findOwned(id, user.id);
+    const existing = await findOwned(id, userId);
     if (!existing) return notFound(reply);
 
     await db.delete(schema.invitations).where(eq(schema.invitations.id, existing.id));

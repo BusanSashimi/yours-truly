@@ -1,10 +1,10 @@
 import { fileURLToPath } from "node:url";
-import cookie from "@fastify/cookie";
 import cors from "@fastify/cors";
 import Fastify from "fastify";
+import { fromNodeHeaders } from "better-auth/node";
+import { auth } from "./auth/auth.js";
 import { corsOrigins, env } from "./env.js";
 import { healthRoutes } from "./routes/health.js";
-import { authRoutes } from "./routes/auth.js";
 import { invitationRoutes } from "./routes/invitations.js";
 
 export function buildServer() {
@@ -17,14 +17,37 @@ export function buildServer() {
     credentials: true,
   });
 
-  app.register(cookie, {
-    secret: env.SESSION_SECRET,
+  // Better Auth owns everything under /api/auth (email+password, Naver OAuth,
+  // sessions). The catch-all converts Fastify's request into a web Request for
+  // auth.handler and copies the Response back. set-cookie needs getSetCookie():
+  // Headers.forEach folds multiple cookies into one comma-joined value, which
+  // corrupts cookies containing Expires dates.
+  app.route({
+    method: ["GET", "POST"],
+    url: "/api/auth/*",
+    async handler(request, reply) {
+      const url = new URL(request.url, `http://${request.headers.host}`);
+      const webRequest = new Request(url, {
+        method: request.method,
+        headers: fromNodeHeaders(request.headers),
+        ...(request.body ? { body: JSON.stringify(request.body) } : {}),
+      });
+
+      const response = await auth.handler(webRequest);
+
+      reply.status(response.status);
+      response.headers.forEach((value, key) => {
+        if (key !== "set-cookie") reply.header(key, value);
+      });
+      const setCookies = response.headers.getSetCookie();
+      if (setCookies.length > 0) reply.header("set-cookie", setCookies);
+      return reply.send(response.body ? await response.text() : null);
+    },
   });
 
   // nginx proxies /api/* to this service; routes are registered under /api
   // so paths match in both dev (direct) and prod (behind nginx).
   app.register(healthRoutes, { prefix: "/api" });
-  app.register(authRoutes, { prefix: "/api/auth" });
   app.register(invitationRoutes, { prefix: "/api/invitations" });
 
   return app;

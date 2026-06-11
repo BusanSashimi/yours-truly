@@ -84,7 +84,7 @@ becomes a bottleneck.
 | ORM            | **Drizzle**                   | Prisma           | TS-native, lightweight, SQL-transparent, no codegen daemon.                  |
 | Database       | **Postgres**                  | —                | Relational data + accounts; SQLite ruled out for a dynamic multi-user API.   |
 | Auth           | **Cookie sessions in the API**| Hand-rolled JWT  | Single source of truth in the authoritative backend; SSR reads cookie direct.|
-| Auth library   | **Hand-rolled (scrypt + signed cookie sessions)** | Better Auth      | See note below — chosen for zero native deps / schema ownership.             |
+| Auth library   | **Better Auth** (since 2026-06-11; was hand-rolled scrypt + signed cookie sessions) | Hand-rolled      | See note below — the Naver OAuth requirement fired the documented revisit trigger. |
 | Monorepo tool  | **pnpm workspaces**           | Turborepo        | Lightest; add caching later only if needed.                                  |
 
 Notes:
@@ -101,6 +101,17 @@ Notes:
   `POST /api/auth/{register,login,logout}`, `GET /api/auth/me`. Login uses a
   constant-message 401 to avoid account enumeration. Revisit Better Auth if/when
   OAuth providers or email verification are needed.
+- **Update (2026-06-11): migrated to Better Auth.** The landing page made Naver
+  login the primary CTA, which fired the revisit trigger above — and prod had
+  ~zero users, making this the cheapest moment to switch. The spirit of the
+  original choice survives: auth stays authoritative in the API, sessions are
+  httpOnly cookies backed by a `sessions` table, and the schema is still owned
+  by our Drizzle definitions (`usePlural` tables: `users`/`sessions`/`accounts`/
+  `verifications`, DB-generated uuid ids). Endpoints are now Better Auth's
+  (`/api/auth/sign-up/email`, `sign-in/email`, `sign-out`, `get-session`,
+  `callback/naver`), mounted via a Fastify catch-all. Naver enables itself only
+  when `NAVER_CLIENT_ID`/`NAVER_CLIENT_SECRET` are set; the callback URL to
+  register is `<BETTER_AUTH_URL>/api/auth/callback/naver`.
 - **Validation:** zod schemas live in `packages/shared` and are imported by both
   the API (request/response validation) and the web app (form types), so the
   contract can't drift.

@@ -18,26 +18,28 @@ after(async () => {
 });
 
 beforeEach(async () => {
-  await db.execute(sql`TRUNCATE TABLE invitations, sessions, users RESTART IDENTITY CASCADE`);
+  await db.execute(
+    sql`TRUNCATE TABLE invitations, sessions, accounts, verifications, users RESTART IDENTITY CASCADE`,
+  );
 });
 
-/** Extract the `sid=...` session cookie from a response, ready to send back. */
+/** Extract the Better Auth session cookie from a response, ready to send back. */
 function sessionCookie(res: LightMyRequestResponse): string | undefined {
   const raw = res.headers["set-cookie"];
   const cookies = Array.isArray(raw) ? raw : raw ? [raw] : [];
-  const sid = cookies.find((c) => c.startsWith("sid="));
-  return sid?.split(";")[0];
+  const token = cookies.find((c) => c.startsWith("better-auth.session_token="));
+  return token?.split(";")[0];
 }
 
 /** Register a user and return their session cookie. */
 async function signUp(email = "owner@example.com"): Promise<string> {
   const res = await app.inject({
     method: "POST",
-    url: "/api/auth/register",
+    url: "/api/auth/sign-up/email",
     payload: { email, name: "Owner", password: "supersecret1" },
   });
   const cookie = sessionCookie(res);
-  assert.ok(cookie, "register must set a session cookie");
+  assert.ok(cookie, "sign-up must set a session cookie");
   return cookie;
 }
 

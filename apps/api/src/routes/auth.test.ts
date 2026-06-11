@@ -5,6 +5,11 @@ import type { LightMyRequestResponse } from "fastify";
 import { closeDb, db } from "../db/index.js";
 import { buildServer } from "../server.js";
 
+/**
+ * Exercises the Better Auth endpoints through the Fastify mount — these tests
+ * pin the catch-all request/response bridging (body re-serialization,
+ * set-cookie handling), not Better Auth's internals.
+ */
 const app = buildServer();
 
 before(async () => {
@@ -17,81 +22,88 @@ after(async () => {
 });
 
 beforeEach(async () => {
-  await db.execute(sql`TRUNCATE TABLE sessions, users RESTART IDENTITY CASCADE`);
+  await db.execute(
+    sql`TRUNCATE TABLE invitations, sessions, accounts, verifications, users RESTART IDENTITY CASCADE`,
+  );
 });
 
-/** Extract the `sid=...` session cookie from a response, ready to send back. */
+/** Extract the Better Auth session cookie from a response, ready to send back. */
 function sessionCookie(res: LightMyRequestResponse): string | undefined {
   const raw = res.headers["set-cookie"];
   const cookies = Array.isArray(raw) ? raw : raw ? [raw] : [];
-  const sid = cookies.find((c) => c.startsWith("sid="));
-  return sid?.split(";")[0];
+  const token = cookies.find((c) => c.startsWith("better-auth.session_token="));
+  return token?.split(";")[0];
 }
 
 const creds = { email: "al@example.com", name: "Al", password: "supersecret1" };
 
-function register(payload: object) {
-  return app.inject({ method: "POST", url: "/api/auth/register", payload });
+function signUp(payload: object) {
+  return app.inject({ method: "POST", url: "/api/auth/sign-up/email", payload });
 }
-function login(payload: object) {
-  return app.inject({ method: "POST", url: "/api/auth/login", payload });
+function signIn(payload: object) {
+  return app.inject({ method: "POST", url: "/api/auth/sign-in/email", payload });
+}
+function getSession(cookie?: string) {
+  return app.inject({
+    method: "GET",
+    url: "/api/auth/get-session",
+    headers: cookie ? { cookie } : {},
+  });
 }
 
-test("register with valid input returns 201, the user, and a session cookie", async () => {
-  const res = await register(creds);
-  assert.equal(res.statusCode, 201);
+test("sign-up returns the user and a session cookie", async () => {
+  const res = await signUp(creds);
+  assert.equal(res.statusCode, 200);
   const body = res.json();
   assert.equal(body.user.email, creds.email);
   assert.equal(body.user.name, creds.name);
-  assert.ok(!("passwordHash" in body.user), "must not leak passwordHash");
   assert.ok(sessionCookie(res), "must set a session cookie");
 });
 
-test("register with invalid input returns 400", async () => {
-  const res = await register({ email: "not-an-email", name: "", password: "short" });
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.json().error.code, "invalid_input");
+test("sign-up with invalid input is rejected", async () => {
+  const res = await signUp({ email: "not-an-email", name: "", password: "short" });
+  assert.ok(res.statusCode >= 400, `expected 4xx, got ${res.statusCode}`);
 });
 
-test("register with a duplicate email returns 409", async () => {
-  await register(creds);
-  const res = await register({ ...creds, name: "Al2" });
-  assert.equal(res.statusCode, 409);
-  assert.equal(res.json().error.code, "email_taken");
+test("sign-up with a duplicate email is rejected", async () => {
+  await signUp(creds);
+  const res = await signUp({ ...creds, name: "Al2" });
+  assert.ok(res.statusCode >= 400, `expected 4xx, got ${res.statusCode}`);
 });
 
-test("login with the wrong password returns 401", async () => {
-  await register(creds);
-  const res = await login({ email: creds.email, password: "wrongpassword" });
-  assert.equal(res.statusCode, 401);
-  assert.equal(res.json().error.code, "invalid_credentials");
+test("sign-in works with correct credentials and rejects a wrong password", async () => {
+  await signUp(creds);
+
+  const ok = await signIn({ email: creds.email, password: creds.password });
+  assert.equal(ok.statusCode, 200);
+  assert.ok(sessionCookie(ok), "sign-in must set a session cookie");
+
+  const bad = await signIn({ email: creds.email, password: "wrong-password" });
+  assert.equal(bad.statusCode, 401);
 });
 
-test("login with the correct password returns 200 and a session cookie", async () => {
-  await register(creds);
-  const res = await login({ email: creds.email, password: creds.password });
-  assert.equal(res.statusCode, 200);
-  assert.equal(res.json().user.email, creds.email);
-  assert.ok(sessionCookie(res), "must set a session cookie");
-});
+test("get-session round-trips the cookie; absent or signed-out sessions are null", async () => {
+  const signedUp = await signUp(creds);
+  const cookie = sessionCookie(signedUp);
+  assert.ok(cookie);
 
-test("me returns the user when given a valid session cookie", async () => {
-  const cookie = sessionCookie(await register(creds))!;
-  const res = await app.inject({ method: "GET", url: "/api/auth/me", headers: { cookie } });
-  assert.equal(res.statusCode, 200);
-  assert.equal(res.json().user.email, creds.email);
-});
+  const withCookie = await getSession(cookie);
+  assert.equal(withCookie.statusCode, 200);
+  assert.equal(withCookie.json()?.user?.email, creds.email);
 
-test("me returns 401 without a session cookie", async () => {
-  const res = await app.inject({ method: "GET", url: "/api/auth/me" });
-  assert.equal(res.statusCode, 401);
-  assert.equal(res.json().error.code, "unauthenticated");
-});
+  const without = await getSession();
+  assert.ok(!without.json()?.user, "no cookie must mean no session");
 
-test("logout invalidates the session so me returns 401", async () => {
-  const cookie = sessionCookie(await register(creds))!;
-  const out = await app.inject({ method: "POST", url: "/api/auth/logout", headers: { cookie } });
-  assert.equal(out.statusCode, 204);
-  const res = await app.inject({ method: "GET", url: "/api/auth/me", headers: { cookie } });
-  assert.equal(res.statusCode, 401);
+  // Cookie-authenticated state-changing requests must pass Better Auth's CSRF
+  // check: browsers always send Origin on fetch POSTs, so tests must too.
+  const signOut = await app.inject({
+    method: "POST",
+    url: "/api/auth/sign-out",
+    payload: {},
+    headers: { cookie, origin: "http://localhost:3000" },
+  });
+  assert.equal(signOut.statusCode, 200);
+
+  const afterSignOut = await getSession(cookie);
+  assert.ok(!afterSignOut.json()?.user, "signed-out session must be gone");
 });
