@@ -184,3 +184,23 @@ export const invitationListResponseSchema = z.object({
   invitations: z.array(invitationSchema),
 });
 export type InvitationListResponse = z.infer<typeof invitationListResponseSchema>;
+
+/**
+ * The design-document fields the public renderer currently understands.
+ * Deliberately lenient: everything optional, unknown keys ignored — the full
+ * versioned design format will be defined alongside the editor, and an older
+ * or richer document must never break a published page.
+ */
+export const invitationDesignFieldsSchema = z
+  .object({
+    groomName: z.string(),
+    brideName: z.string(),
+    /** ISO datetime of the ceremony. */
+    dateTime: z.string().datetime(),
+    venueName: z.string(),
+    venueAddress: z.string(),
+    /** 모시는 글 — the invitation message shown to guests. */
+    message: z.string(),
+  })
+  .partial();
+export type InvitationDesignFields = z.infer<typeof invitationDesignFieldsSchema>;
