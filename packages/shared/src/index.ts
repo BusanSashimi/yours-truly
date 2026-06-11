@@ -131,3 +131,56 @@ export const slugSchema = z
     "Use lowercase letters, numbers, and hyphens; start and end with a letter or number",
   )
   .refine((slug) => !RESERVED_SLUGS.has(slug), "This name is reserved");
+
+/**
+ * The invitation's design document. Stored opaquely for now; a versioned
+ * structured format will be defined alongside the editor.
+ */
+export const invitationDesignSchema = z.record(z.unknown());
+export type InvitationDesign = z.infer<typeof invitationDesignSchema>;
+
+/**
+ * An invitation as exposed to clients. The owner id is intentionally absent:
+ * owners only ever see their own, and guests must not see it at all. `slug` is
+ * a plain string on output — already-stored slugs must keep serializing even
+ * if RESERVED_SLUGS later grows to cover one of them.
+ */
+export const invitationSchema = z.object({
+  id: z.string().uuid(),
+  slug: z.string(),
+  status: invitationStatusSchema,
+  design: invitationDesignSchema,
+  createdAt: z.string().datetime(),
+  updatedAt: z.string().datetime(),
+});
+export type Invitation = z.infer<typeof invitationSchema>;
+
+/** POST /api/invitations */
+export const createInvitationInputSchema = z.object({
+  slug: slugSchema,
+  design: invitationDesignSchema.optional(),
+});
+export type CreateInvitationInput = z.infer<typeof createInvitationInputSchema>;
+
+/** PATCH /api/invitations/:id — any subset of fields, but not an empty patch. */
+export const updateInvitationInputSchema = z
+  .object({
+    slug: slugSchema,
+    status: invitationStatusSchema,
+    design: invitationDesignSchema,
+  })
+  .partial()
+  .refine((patch) => Object.keys(patch).length > 0, "Provide at least one field to update");
+export type UpdateInvitationInput = z.infer<typeof updateInvitationInputSchema>;
+
+/** Single-invitation responses (create / get / update). */
+export const invitationResponseSchema = z.object({
+  invitation: invitationSchema,
+});
+export type InvitationResponse = z.infer<typeof invitationResponseSchema>;
+
+/** GET /api/invitations */
+export const invitationListResponseSchema = z.object({
+  invitations: z.array(invitationSchema),
+});
+export type InvitationListResponse = z.infer<typeof invitationListResponseSchema>;

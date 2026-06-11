@@ -5,6 +5,7 @@ import Fastify from "fastify";
 import { corsOrigins, env } from "./env.js";
 import { healthRoutes } from "./routes/health.js";
 import { authRoutes } from "./routes/auth.js";
+import { invitationRoutes } from "./routes/invitations.js";
 
 export function buildServer() {
   const app = Fastify({
@@ -24,6 +25,7 @@ export function buildServer() {
   // so paths match in both dev (direct) and prod (behind nginx).
   app.register(healthRoutes, { prefix: "/api" });
   app.register(authRoutes, { prefix: "/api/auth" });
+  app.register(invitationRoutes, { prefix: "/api/invitations" });
 
   return app;
 }
