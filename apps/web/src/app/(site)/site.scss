@@ -1,0 +1,24 @@
+// Site skin — tokens and base styles for the marketing/auth/dashboard surface.
+// Loaded only by the (site) root layout; invitation pages never see these.
+// Tokens stay CSS custom properties (not SCSS variables) on purpose: they are
+// runtime values — the same mechanism invitation templates will use for
+// per-design theming. The shared reset lives in ../reset.scss.
+
+:root {
+  --background: #f7f5f2;
+  --foreground: #1a1a1a;
+  --muted: #8c8780;
+  --line: #e7e3dc;
+  --accent: #a98f63; /* muted gold */
+  --naver: #03c75a;
+
+  --font-serif: var(--font-playfair), Georgia, "Times New Roman", serif;
+  --font-ui: var(--font-geist-sans), -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-ui);
+}
