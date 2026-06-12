@@ -1,11 +1,13 @@
 import { fileURLToPath } from "node:url";
 import cors from "@fastify/cors";
+import rateLimit from "@fastify/rate-limit";
 import Fastify from "fastify";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth/auth.js";
 import { corsOrigins, env } from "./env.js";
 import { healthRoutes } from "./routes/health.js";
 import { invitationRoutes } from "./routes/invitations.js";
+import { uploadRoutes } from "./routes/uploads.js";
 
 export function buildServer() {
   const app = Fastify({
@@ -16,6 +18,10 @@ export function buildServer() {
     origin: corsOrigins,
     credentials: true,
   });
+
+  // Opt-in rate limiting: routes declare config.rateLimit themselves
+  // (currently POST /api/uploads — presigns authorize public-bucket writes).
+  app.register(rateLimit, { global: false });
 
   // Better Auth owns everything under /api/auth (email+password, Naver OAuth,
   // sessions). The catch-all converts Fastify's request into a web Request for
@@ -49,6 +55,7 @@ export function buildServer() {
   // so paths match in both dev (direct) and prod (behind nginx).
   app.register(healthRoutes, { prefix: "/api" });
   app.register(invitationRoutes, { prefix: "/api/invitations" });
+  app.register(uploadRoutes, { prefix: "/api/uploads" });
 
   return app;
 }

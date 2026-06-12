@@ -23,6 +23,18 @@
   border: 1px solid #eee9e1;
 }
 
+// Bleeds to the card edges (cancels the card padding), content follows below.
+.hero {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  margin: -56px -32px 40px;
+  overflow: hidden;
+}
+
+.heroImg {
+  object-fit: cover;
+}
+
 .eyebrow {
   font-size: 11px;
   letter-spacing: 0.32em;

@@ -21,6 +21,11 @@ const envSchema = z.object({
   // Path to a CA bundle (e.g. the RDS CA). When set, the DB connection uses TLS
   // with full chain + hostname verification. Unset for local dev (no SSL).
   DATABASE_CA: z.string().optional(),
+  // S3 image uploads. Optional: when S3_BUCKET is unset, POST /api/uploads
+  // returns 503 and the editor hides the upload UI. Credentials come from the
+  // SDK default chain (instance role in prod; ~/.aws or env locally).
+  S3_BUCKET: z.string().optional(),
+  S3_REGION: z.string().default("us-east-1"),
 });
 
 export const env = envSchema.parse(process.env);

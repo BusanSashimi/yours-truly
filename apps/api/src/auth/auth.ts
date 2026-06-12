@@ -1,5 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { fromNodeHeaders } from "better-auth/node";
+import type { FastifyRequest } from "fastify";
 import { db } from "../db/index.js";
 import * as schema from "../db/schema.js";
 import { corsOrigins, env } from "../env.js";
@@ -48,3 +50,9 @@ export const auth = betterAuth({
     },
   },
 });
+
+/** Resolve the signed-in user's id from the Better Auth session cookie. */
+export async function sessionUserId(request: FastifyRequest): Promise<string | null> {
+  const session = await auth.api.getSession({ headers: fromNodeHeaders(request.headers) });
+  return session?.user.id ?? null;
+}

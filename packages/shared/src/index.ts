@@ -165,6 +165,14 @@ export type InvitationListResponse = z.infer<typeof invitationListResponseSchema
  * versioned design format will be defined alongside the editor, and an older
  * or richer document must never break a published page.
  */
+/**
+ * Shape of an uploaded asset's S3 object key: i/<invitationId>/<uuid>.<ext>.
+ * Renderers additionally require the invitationId segment to match the
+ * invitation being rendered.
+ */
+export const ASSET_KEY_REGEX =
+  /^i\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
+
 export const invitationDesignFieldsSchema = z
   .object({
     groomName: z.string(),
@@ -175,6 +183,39 @@ export const invitationDesignFieldsSchema = z
     venueAddress: z.string(),
     /** 모시는 글 — the invitation message shown to guests. */
     message: z.string(),
+    /**
+     * Hero photo as an S3 object KEY (i/<invitationId>/<uuid>.<ext>), never a
+     * URL: renderers derive the URL from their configured asset origin and
+     * refuse keys outside the invitation's own prefix — arbitrary hosts and
+     * other couples' photos can't be smuggled in, and a CDN cutover later is
+     * config, not a data migration.
+     */
+    heroImageKey: z.string().regex(ASSET_KEY_REGEX),
   })
   .partial();
 export type InvitationDesignFields = z.infer<typeof invitationDesignFieldsSchema>;
+
+/** Image uploads (hero photo etc.) — presigned direct-to-S3 PUT. */
+export const UPLOAD_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const UPLOAD_MAX_BYTES = 10 * 1024 * 1024;
+
+/** POST /api/uploads */
+export const createUploadInputSchema = z.object({
+  invitationId: z.string().uuid(),
+  contentType: z.enum(UPLOAD_CONTENT_TYPES),
+  size: z
+    .number()
+    .int()
+    .positive()
+    .max(UPLOAD_MAX_BYTES, "이미지는 10MB 이하여야 합니다"),
+});
+export type CreateUploadInput = z.infer<typeof createUploadInputSchema>;
+
+export const createUploadResponseSchema = z.object({
+  /** Presigned PUT URL — upload the file here with the same Content-Type. */
+  uploadUrl: z.string().url(),
+  /** Public URL to store in the design doc once the PUT succeeds. */
+  publicUrl: z.string().url(),
+  key: z.string(),
+});
+export type CreateUploadResponse = z.infer<typeof createUploadResponseSchema>;

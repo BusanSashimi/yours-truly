@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   invitationDesignFieldsSchema,
@@ -6,6 +7,7 @@ import {
   type Invitation,
   type InvitationDesignFields,
 } from "@yours-truly/shared";
+import { assetUrl, isRenderableAssetKey } from "@/lib/assets";
 import styles from "./page.module.scss";
 
 /**
@@ -72,6 +74,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       .join(" · ") ||
     "모바일 청첩장";
 
+  // The hero (client-side re-encoded at upload: ≤2048px JPEG, well under
+  // KakaoTalk's 5MB scraper limit) doubles as the link-preview image.
+  const ogImage = isRenderableAssetKey(fields.heroImageKey, invitation.id)
+    ? [{ url: assetUrl(fields.heroImageKey) }]
+    : undefined;
+
   return {
     title,
     description,
@@ -79,7 +87,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // home is empty. Keep guest pages out of search engines; indexing can
     // become a per-invitation opt-in later.
     robots: { index: false, follow: false },
-    openGraph: { title, description, type: "website" },
+    openGraph: { title, description, type: "website", images: ogImage },
   };
 }
 
@@ -89,10 +97,25 @@ export default async function InvitationPage({ params }: Props) {
   if (!invitation) notFound();
 
   const fields = designFields(invitation.design);
+  const heroKey = isRenderableAssetKey(fields.heroImageKey, invitation.id)
+    ? fields.heroImageKey
+    : undefined;
 
   return (
     <main className={styles.page}>
       <article className={styles.card}>
+        {heroKey && (
+          <div className={styles.hero}>
+            <Image
+              src={assetUrl(heroKey)}
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 480px) 100vw, 420px"
+              className={styles.heroImg}
+            />
+          </div>
+        )}
         <p className={styles.eyebrow}>Wedding Invitation</p>
 
         {fields.groomName && fields.brideName ? (

@@ -1,8 +1,11 @@
 import {
   apiErrorSchema,
+  createUploadResponseSchema,
   invitationListResponseSchema,
   invitationResponseSchema,
   type CreateInvitationInput,
+  type CreateUploadInput,
+  type CreateUploadResponse,
   type Invitation,
   type UpdateInvitationInput,
 } from "@yours-truly/shared";
@@ -65,4 +68,9 @@ export async function updateInvitation(
 
 export async function deleteInvitation(id: string): Promise<void> {
   await request(`/api/invitations/${id}`, { method: "DELETE" });
+}
+
+export async function createUpload(input: CreateUploadInput): Promise<CreateUploadResponse> {
+  const body = await request("/api/uploads", { method: "POST", body: JSON.stringify(input) });
+  return createUploadResponseSchema.parse(body);
 }

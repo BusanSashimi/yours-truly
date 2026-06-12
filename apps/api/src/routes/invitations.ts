@@ -1,5 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
-import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import type { FastifyInstance, FastifyReply } from "fastify";
 import {
   createInvitationInputSchema,
   updateInvitationInputSchema,
@@ -8,18 +8,12 @@ import {
   type InvitationResponse,
 } from "@yours-truly/shared";
 import { z } from "zod";
-import { fromNodeHeaders } from "better-auth/node";
-import { auth } from "../auth/auth.js";
+import { sessionUserId } from "../auth/auth.js";
 import { db, schema } from "../db/index.js";
 import type { InvitationRow } from "../db/schema.js";
+import { deleteAssetPrefix, isS3Configured } from "../s3.js";
 
 const uuidSchema = z.string().uuid();
-
-/** Resolve the signed-in user's id from the Better Auth session cookie. */
-async function sessionUserId(request: FastifyRequest): Promise<string | null> {
-  const session = await auth.api.getSession({ headers: fromNodeHeaders(request.headers) });
-  return session?.user.id ?? null;
-}
 
 /** Map a DB row to the client-safe invitation shape (never leaks the owner id). */
 function toPublicInvitation(row: InvitationRow): Invitation {
@@ -190,6 +184,14 @@ export async function invitationRoutes(app: FastifyInstance) {
     if (!existing) return notFound(reply);
 
     await db.delete(schema.invitations).where(eq(schema.invitations.id, existing.id));
+
+    // Photos of a deleted invitation must not stay publicly fetchable.
+    // Best-effort: the deletion already succeeded; S3 hiccups only get logged.
+    if (isS3Configured()) {
+      deleteAssetPrefix(existing.id).catch((err) =>
+        request.log.error({ err, invitationId: existing.id }, "asset cleanup failed"),
+      );
+    }
     return reply.status(204).send();
   });
 }

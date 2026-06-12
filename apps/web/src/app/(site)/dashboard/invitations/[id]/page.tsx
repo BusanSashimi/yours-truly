@@ -8,7 +8,15 @@ import {
   type Invitation,
   type InvitationDesignFields,
 } from "@yours-truly/shared";
-import { ApiRequestError, deleteInvitation, getInvitation, updateInvitation } from "@/lib/api";
+import {
+  ApiRequestError,
+  createUpload,
+  deleteInvitation,
+  getInvitation,
+  updateInvitation,
+} from "@/lib/api";
+import { assetUrl, isRenderableAssetKey } from "@/lib/assets";
+import { reencodeToJpeg } from "@/lib/image-processing";
 import styles from "../../dashboard.module.scss";
 
 /** datetime-local input value (browser-local wall time) for an ISO instant. */
@@ -33,6 +41,7 @@ const FIELD_KEYS = [
   "venueName",
   "venueAddress",
   "message",
+  "heroImageKey",
 ] as const;
 
 export default function InvitationEditorPage({
@@ -52,7 +61,10 @@ export default function InvitationEditorPage({
     venueName: "",
     venueAddress: "",
     message: "",
+    heroImageKey: "",
   });
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [statusPending, setStatusPending] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
@@ -71,6 +83,9 @@ export default function InvitationEditorPage({
           venueName: fields.venueName ?? "",
           venueAddress: fields.venueAddress ?? "",
           message: fields.message ?? "",
+          heroImageKey: isRenderableAssetKey(fields.heroImageKey, inv.id)
+            ? fields.heroImageKey
+            : "",
         });
       })
       .catch((e: unknown) =>
@@ -100,7 +115,41 @@ export default function InvitationEditorPage({
     if (form.venueName.trim()) design.venueName = form.venueName.trim();
     if (form.venueAddress.trim()) design.venueAddress = form.venueAddress.trim();
     if (form.message.trim()) design.message = form.message;
+    if (form.heroImageKey) design.heroImageKey = form.heroImageKey;
     return design;
+  }
+
+  async function onHeroFile(file: File | undefined) {
+    if (!file || !invitation) return;
+    setUploadError(null);
+    setUploading(true);
+    try {
+      // Re-encode client-side: bounds size for KakaoTalk previews, strips
+      // EXIF (GPS!) before the bytes reach the public bucket.
+      const blob = await reencodeToJpeg(file);
+      const { uploadUrl, key } = await createUpload({
+        invitationId: invitation.id,
+        contentType: "image/jpeg",
+        size: blob.size,
+      });
+      const put = await fetch(uploadUrl, {
+        method: "PUT",
+        body: blob,
+        headers: { "Content-Type": "image/jpeg" },
+      });
+      if (!put.ok) throw new Error(`업로드에 실패했습니다 (${put.status})`);
+      setField("heroImageKey", key);
+    } catch (e) {
+      setUploadError(
+        e instanceof ApiRequestError && e.code === "uploads_unavailable"
+          ? "이미지 업로드가 아직 설정되지 않았습니다."
+          : e instanceof Error
+            ? e.message
+            : "업로드에 실패했습니다.",
+      );
+    } finally {
+      setUploading(false);
+    }
   }
 
   async function onSave(event: FormEvent) {
@@ -181,6 +230,42 @@ export default function InvitationEditorPage({
       )}
 
       <form className={styles.form} onSubmit={onSave}>
+        <div className={styles.heroField}>
+          <span className={styles.heroLabel}>대표 사진</span>
+          {form.heroImageKey ? (
+            <div className={styles.heroPreviewWrap}>
+              {/* eslint-disable-next-line @next/next/no-img-element -- editor
+                  preview; the guest page uses next/image */}
+              <img
+                className={styles.heroPreview}
+                src={assetUrl(form.heroImageKey)}
+                alt="대표 사진 미리보기"
+              />
+              <button
+                type="button"
+                className={styles.subtle}
+                onClick={() => setField("heroImageKey", "")}
+              >
+                사진 제거
+              </button>
+            </div>
+          ) : (
+            <label className={styles.heroUpload}>
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic"
+                disabled={uploading}
+                onChange={(e) => {
+                  void onHeroFile(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+              {uploading ? "업로드 중…" : "사진 선택 (10MB 이하)"}
+            </label>
+          )}
+          {uploadError && <p className={styles.error}>{uploadError}</p>}
+        </div>
+
         <div className={styles.fieldRow}>
           <label className={styles.field}>
             <span>신랑 이름</span>
