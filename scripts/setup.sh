@@ -22,7 +22,10 @@ if [ ! -f "$ENV_FILE" ]; then
 DATABASE_URL=postgres://yt:ytpass@localhost:5432/yours_truly
 BETTER_AUTH_SECRET=$(openssl rand -hex 32)
 # Naver OAuth — optional locally; when unset only email/password is enabled.
-# Callback to register: http://localhost:4000/api/auth/callback/naver
+# To test the full flow locally, ALSO set BETTER_AUTH_URL=http://localhost:3000
+# (the browser must return through the web app's /api rewrite, not :4000) and
+# register http://localhost:3000/api/auth/callback/naver in the Naver console.
+#BETTER_AUTH_URL=http://localhost:3000
 #NAVER_CLIENT_ID=
 #NAVER_CLIENT_SECRET=
 EOF

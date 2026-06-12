@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
+import { NaverLoginButton } from "../naver-login-button";
 import styles from "../login/auth-form.module.scss";
 
 export default function SignupPage() {
@@ -79,6 +80,14 @@ export default function SignupPage() {
         <p className={styles.alt}>
           이미 계정이 있으신가요? <Link href="/login">로그인</Link>
         </p>
+
+        <div className={styles.orDivider}>또는</div>
+        <NaverLoginButton className={styles.naver} errorClassName={styles.error}>
+          <span className={styles.naverMark} aria-hidden>
+            N
+          </span>
+          네이버로 시작하기
+        </NaverLoginButton>
       </form>
     </main>
   );

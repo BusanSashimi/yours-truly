@@ -1,4 +1,5 @@
 import styles from "./page.module.scss";
+import { NaverLoginButton } from "./naver-login-button";
 
 export default function Home() {
   return (
@@ -37,12 +38,12 @@ export default function Home() {
 
         <p className={styles.sub}>1초 회원가입으로 간편로그인</p>
 
-        <button type="button" className={styles.cta}>
+        <NaverLoginButton className={styles.cta} errorClassName={styles.ctaError}>
           <span className={styles.naverMark} aria-hidden>
             N
           </span>
           네이버로 시작하기
-        </button>
+        </NaverLoginButton>
 
         <a href="/login" className={styles.otherOptions}>
           Other Login Options

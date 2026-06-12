@@ -25,6 +25,13 @@ export const auth = betterAuth({
     enabled: true,
     minPasswordLength: 8,
   },
+  account: {
+    accountLinking: {
+      // A Naver sign-in whose email matches an existing email/password user
+      // links to that user instead of failing — Naver verifies its emails.
+      trustedProviders: ["naver"],
+    },
+  },
   socialProviders:
     env.NAVER_CLIENT_ID && env.NAVER_CLIENT_SECRET
       ? {

@@ -93,3 +93,46 @@
     text-underline-offset: 4px;
   }
 }
+
+.orDivider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 24px;
+  font-size: 12px;
+  color: var(--muted);
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+  }
+}
+
+.naver {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+  padding: 13px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--naver);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.naverMark {
+  font-weight: 800;
+}

@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
+import { NaverLoginButton } from "../naver-login-button";
 import styles from "./auth-form.module.scss";
 
 export default function LoginPage() {
@@ -12,6 +13,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+
+  // Better Auth lands here with ?error=naver when the OAuth flow fails
+  // (errorCallbackURL). Read via window.location instead of useSearchParams
+  // to keep the page statically prerenderable without a Suspense boundary.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("error") === "naver") {
+      setError("네이버 로그인에 실패했습니다. 다시 시도하거나 이메일로 로그인해 주세요.");
+    }
+  }, []);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -66,6 +76,14 @@ export default function LoginPage() {
         <p className={styles.alt}>
           아직 계정이 없으신가요? <Link href="/signup">회원가입</Link>
         </p>
+
+        <div className={styles.orDivider}>또는</div>
+        <NaverLoginButton className={styles.naver} errorClassName={styles.error}>
+          <span className={styles.naverMark} aria-hidden>
+            N
+          </span>
+          네이버로 시작하기
+        </NaverLoginButton>
       </form>
     </main>
   );
