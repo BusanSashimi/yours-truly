@@ -44,7 +44,7 @@ export default function Home() {
           네이버로 시작하기
         </button>
 
-        <a href="#" className={styles.otherOptions}>
+        <a href="/login" className={styles.otherOptions}>
           Other Login Options
         </a>
 

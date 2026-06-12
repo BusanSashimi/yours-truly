@@ -1,0 +1,346 @@
+// Dashboard chrome + list + editor. Shared by /dashboard and
+// /dashboard/invitations/[id].
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--line);
+}
+
+.wordmark {
+  font-family: var(--font-serif);
+  font-size: 17px;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+}
+
+.accountName {
+  color: var(--muted);
+}
+
+.signOut {
+  padding: 0;
+  font: inherit;
+  font-size: 13px;
+  color: var(--foreground);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.main {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.heading {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.error {
+  margin-top: 12px;
+  font-size: 13px;
+  color: #b3261e;
+}
+
+.notice {
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.empty {
+  margin-top: 28px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.primary {
+  padding: 12px 20px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--foreground);
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.subtle {
+  padding: 12px 20px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--foreground);
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+}
+
+.danger {
+  padding: 12px 20px;
+  font: inherit;
+  font-size: 14px;
+  color: #b3261e;
+  background: none;
+  border: 1px solid #eccfcc;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+// --- create card (dashboard) ---
+
+.createCard {
+  margin-top: 28px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.slugLabel {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.slugRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.slugPrefix {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.slugInput {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 14px;
+  font: inherit;
+  background: var(--background);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+
+  &:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: -1px;
+  }
+}
+
+@media (max-width: 540px) {
+  .slugRow {
+    flex-wrap: wrap;
+  }
+}
+
+// --- invitation list ---
+
+.list {
+  margin-top: 24px;
+  list-style: none;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 20px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+
+  & + & {
+    margin-top: 10px;
+  }
+}
+
+.itemInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.itemSlug {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 3px 9px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  background: var(--background);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.badgePublished {
+  color: #fff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.itemActions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+
+  a,
+  button {
+    padding: 0;
+    font: inherit;
+    font-size: 13px;
+    color: var(--foreground);
+    background: none;
+    border: 0;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    cursor: pointer;
+  }
+
+  button {
+    color: #b3261e;
+  }
+}
+
+// --- editor (/dashboard/invitations/[id]) ---
+
+.editorHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.backLink {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.publicLink {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.form {
+  margin-top: 24px;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+}
+
+.field {
+  display: block;
+
+  & + & {
+    margin-top: 18px;
+  }
+
+  span {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    padding: 12px 14px;
+    font: inherit;
+    color: var(--foreground);
+    background: var(--background);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+
+    &:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: -1px;
+    }
+  }
+
+  textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+}
+
+.fieldRow + .field {
+  margin-top: 18px;
+}
+
+.fieldRow {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+
+  .field {
+    flex: 1;
+    margin-top: 0;
+  }
+
+  @media (max-width: 540px) {
+    flex-direction: column;
+    gap: 18px;
+  }
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
