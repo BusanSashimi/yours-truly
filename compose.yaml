@@ -1,0 +1,31 @@
+# Local development backing services — dev/prod parity for the data layer
+# (postgres:16 matches RDS and CI). The apps themselves run natively
+# (`pnpm dev`) for fast hot reload; this file is never used in production.
+#
+#   docker compose up -d --wait   # started automatically by `pnpm dev`/`pnpm bootstrap`
+#
+# The init script creates the test database alongside the dev one, so the API
+# test suite works locally with no extra steps. Init scripts only run on first
+# volume creation — `docker compose down -v` to start truly fresh.
+name: yours-truly
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: yt
+      POSTGRES_PASSWORD: ytpass
+      POSTGRES_DB: yours_truly
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./scripts/initdb:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U yt -d yours_truly"]
+      interval: 2s
+      timeout: 5s
+      retries: 15
+
+volumes:
+  db-data:

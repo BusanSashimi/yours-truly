@@ -187,25 +187,26 @@ slotted in at any stage once traffic warrants it.
 
 ### Local dev quick-start
 
-```bash
-# one-time: local Postgres (Ubuntu)
-sudo apt-get install -y postgresql
-sudo -u postgres psql -c "CREATE ROLE yt LOGIN PASSWORD 'ytpass';" \
-                      -c "CREATE DATABASE yours_truly OWNER yt;"
+> Reworked 2026-06-12 — backing services moved to Docker Compose for
+> dev/prod parity (postgres:16 everywhere: local, CI, RDS). The previous
+> Ubuntu `apt-get postgresql` flow also depended on `apps/api/.env.example`,
+> which the `.env*` gitignore had silently kept out of the repo.
 
-cp apps/api/.env.example apps/api/.env   # then edit DATABASE_URL / SESSION_SECRET
-pnpm install
-pnpm db:migrate                          # apply drizzle migrations
-pnpm dev                                 # web :3000, api :4000 in parallel
+Prereqs: Node ≥20 (pnpm via corepack) and Docker.
+
+```bash
+pnpm bootstrap   # one-time: postgres:16 (compose) + test DB, generates
+                 # apps/api/.env (BETTER_AUTH_SECRET), install, migrate, seed
+pnpm dev         # web :3000, api :4000 (brings the db container up first)
 ```
 
-**Running the API tests** (one-time: create + migrate a separate test DB):
+Seeded demo: `http://localhost:3000/invitations/demo-wedding`
+(owner: `demo@example.com` / `demo-password-1`).
+
+**Running the API tests** — `pnpm bootstrap` already created and migrated
+`yours_truly_test` (compose init script + a second migrate pass), so:
 
 ```bash
-sudo -u postgres psql -c "CREATE DATABASE yours_truly_test OWNER yt;"
-DATABASE_URL=postgres://yt:ytpass@localhost:5432/yours_truly_test \
-  pnpm --filter @yours-truly/api db:migrate
-
 pnpm --filter @yours-truly/api test
 ```
 

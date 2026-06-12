@@ -1,36 +1,58 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# yours-truly
 
-## Getting Started
+Wedding invitation maker and host. Couples design a mobile invitation page,
+pick a name for it, and share the public URL with their guests:
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+https://www.yourstruly.it/invitations/<slug>
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Repo layout (pnpm workspaces)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+apps/
+  web/        Next.js 15 (SSR/ISR) — marketing site + guest-facing invitation pages
+  api/        Fastify 5 — auth (Better Auth), invitation CRUD, Postgres via Drizzle
+packages/
+  shared/     zod contracts shared by both apps (slug rules, invitation schemas)
+deploy/       production infra (EC2 + nginx + systemd, pull-based CI-gated deploy)
+docs/         architecture decisions & runbooks — start with docs/architecture.md
+scripts/      local dev tooling (bootstrap, compose init)
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local development
 
-## Learn More
+Prerequisites: Node ≥ 20 (`corepack enable` for pnpm) and Docker.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm bootstrap   # one-time: postgres:16 via compose, apps/api/.env with a
+                 # generated secret, install, migrate, seed demo data
+pnpm dev         # web on :3000, api on :4000 (starts the db container if needed)
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Then open <http://localhost:3000/invitations/demo-wedding> — a seeded,
+published demo invitation (owner login: `demo@example.com` / `demo-password-1`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The database runs in Docker (`compose.yaml`, postgres:16 — same major version
+as production RDS and CI). The apps run natively for fast reload. Data persists
+in a named volume; `docker compose down -v` resets it (re-run `pnpm bootstrap`).
 
-## Deploy on Vercel
+### Everyday commands
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Command | What it does |
+| --- | --- |
+| `pnpm dev` | both apps in watch mode (`dev:web` / `dev:api` for one) |
+| `pnpm build` | build shared, then both apps |
+| `pnpm lint` / `pnpm typecheck` | repo-wide |
+| `pnpm --filter @yours-truly/api test` | API tests against `yours_truly_test` (created by compose init) |
+| `pnpm --filter @yours-truly/shared test` | shared contract tests |
+| `pnpm db:generate` | new drizzle migration from schema changes |
+| `pnpm db:migrate` | apply migrations (reads `DATABASE_URL` from env) |
+| `pnpm db:seed` | (re-)seed demo data — idempotent |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Production
+
+Single EC2 box behind nginx (TLS), web + api as systemd services, Postgres on
+RDS. Deploys are pull-based and CI-gated: push to `main`, GitHub Actions must
+go green, then the box's timer builds, migrates, restarts, and smoke-checks.
+Details and runbooks: `deploy/README.md` and `docs/architecture.md`.
