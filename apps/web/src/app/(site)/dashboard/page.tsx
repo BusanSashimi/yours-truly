@@ -68,7 +68,7 @@ export default function DashboardPage() {
           새 청첩장 주소
         </label>
         <div className={styles.slugRow}>
-          <span className={styles.slugPrefix}>yourstruly.it/invitations/</span>
+          <span className={styles.slugPrefix}>www.yourstruly.it/invitations/</span>
           <input
             id="new-slug"
             className={styles.slugInput}

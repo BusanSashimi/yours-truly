@@ -77,7 +77,10 @@ aws ec2 associate-address --region us-east-1 --allocation-id "$ALLOC" --instance
 
 ### 6. Verify, then terminate the old box
 ```
-curl -sS -o /dev/null -w '%{http_code}\n' https://yourstruly.it/
+# canonical host serves the app; the apex must 301 to it (host-only auth
+# cookies — see docs/canonical-www-cutover.md)
+curl -sS -o /dev/null -w '%{http_code}\n' https://www.yourstruly.it/   # expect 200
+curl -sS -o /dev/null -w '%{http_code}\n' https://yourstruly.it/       # expect 301
 aws ec2 terminate-instances --instance-ids i-011a7e6377f9f0d18 --region us-east-1
 ```
 

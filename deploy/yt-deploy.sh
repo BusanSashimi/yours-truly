@@ -20,7 +20,9 @@ REPO=/opt/yours-truly
 REPO_SLUG=BusanSashimi/yours-truly
 MARKER=/var/www/yours-truly/.deployed_sha
 LOCKFILE=/tmp/yt-deploy.lock
-DOMAIN=yourstruly.it
+# Canonical host — the apex 301s to www (see nginx conf), and the smoke check
+# below requires exactly 200, so it must target the host that serves the app.
+DOMAIN=www.yourstruly.it
 ENV_FILE=/etc/yours-truly/api.env
 
 export PATH="/usr/local/bin:/usr/bin:$PATH"
