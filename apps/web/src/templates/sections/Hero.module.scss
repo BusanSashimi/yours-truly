@@ -54,8 +54,11 @@
   background: var(--accent);
 }
 
-// Hand-stamped wax seal on the "letter" hero (stamped with the numeric date).
+// Hand-stamped wax seal on the "letter" hero (stamped with the numeric date):
+// a convex glossy wax body with a raised embossed rim and a pressed inner ring.
 .waxSeal {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -63,13 +66,60 @@
   height: 76px;
   margin-top: 22px;
   border-radius: 50%;
-  background: var(--accent);
   color: var(--on-accent);
   font-family: var(--font-display);
   font-size: 15px;
   letter-spacing: 0.03em;
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 26%, transparent);
+  text-align: center;
+  // Convex wax body: bright glossy hotspot up-and-left, darkening to the rim.
+  background:
+    radial-gradient(
+      120% 120% at 32% 28%,
+      color-mix(in srgb, var(--accent) 78%, white) 0%,
+      var(--accent) 38%,
+      color-mix(in srgb, var(--accent) 72%, black) 78%,
+      color-mix(in srgb, var(--accent) 55%, black) 100%
+    );
+  box-shadow:
+    // top-left light wrapping the convex surface
+    inset 0 4px 7px -2px color-mix(in srgb, var(--accent) 35%, white),
+    // bottom inner shadow giving the dome its volume
+    inset 0 -7px 9px -3px color-mix(in srgb, var(--accent) 50%, black),
+    // soft cast shadow onto the paper, slightly down-right (hand-stamped)
+    1px 3px 6px color-mix(in srgb, var(--accent) 45%, transparent),
+    0 1px 1px color-mix(in srgb, black 22%, transparent);
+  // Off-center rotation reads as hand-pressed rather than machine-perfect.
   transform: rotate(-6deg);
+}
+
+// Raised embossed outer rim: a thin band hugging the edge, lit at the top
+// and shadowed at the bottom so it stands proud of the wax body.
+.waxSeal::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  box-shadow:
+    inset 0 2px 2px color-mix(in srgb, var(--accent) 30%, white),
+    inset 0 -2px 3px color-mix(in srgb, var(--accent) 55%, black),
+    inset 0 0 0 1px color-mix(in srgb, var(--accent) 60%, black);
+}
+
+// Thin pressed inner ring just inside the edge — the crisp jewelry-like
+// channel where the stamp bit into the wax.
+.waxSeal::after {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, var(--accent) 62%, black);
+  box-shadow:
+    inset 0 1px 1px color-mix(in srgb, var(--accent) 45%, black),
+    inset 0 -1px 1px color-mix(in srgb, var(--accent) 25%, white);
 }
 
 .quote {
