@@ -329,6 +329,14 @@ export const guestUploadSettingsSchema = z.object({
   prompt: z.string().optional(),
 });
 
+/** Private guest-message settings (QR 메시지·사진); the media lives in a table. */
+export const guestMessagesSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  /** Submissions open at this instant; before it, the QR page shows a notice. */
+  openDate: z.string().datetime({ offset: true }).optional(),
+  prompt: z.string().optional(),
+});
+
 /** Decorative epigraph/quote (e.g. a poem excerpt) shown near the top. */
 export const quoteSchema = z.object({
   text: z.string().optional(),
@@ -398,6 +406,8 @@ export const invitationDesignFieldsSchema = z.object({
   wreathUrl: z.string().url().optional().catch(undefined),
   /** Guest photo-upload feature settings (게스트스냅). */
   guestUpload: guestUploadSettingsSchema.optional().catch(undefined),
+  /** Private QR guest-message feature settings (QR 메시지·사진). */
+  guestMessages: guestMessagesSettingsSchema.optional().catch(undefined),
   /** Toggle the RSVP section (참석 여부 전달). */
   rsvpEnabled: z.boolean().optional().catch(undefined),
   /** Toggle the guestbook section (방명록). */
@@ -551,3 +561,60 @@ export const guestUploadListResponseSchema = z.object({
   uploads: z.array(guestUploadEntrySchema),
 });
 export type GuestUploadListResponse = z.infer<typeof guestUploadListResponseSchema>;
+
+/**
+ * Private guest messages (QR 메시지·사진). Photos live under a NON-public `m/`
+ * prefix — distinct from the public `i/` and `g/` assets — and reach the couple
+ * only through short-lived presigned GET URLs, never the bucket's public-read
+ * policy. Reuses the guest-upload content-type/size limits.
+ */
+export const M_ASSET_KEY_REGEX =
+  /^m\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
+export const GUEST_MESSAGE_MAX_PHOTOS = 10;
+
+/** POST /api/invitations/:id/messages/presign (public, presign). */
+export const createGuestMessagePresignInputSchema = z.object({
+  contentType: z.enum(GUEST_UPLOAD_CONTENT_TYPES),
+  size: z.number().int().positive().max(GUEST_UPLOAD_MAX_BYTES, "파일은 15MB 이하여야 합니다"),
+});
+export type CreateGuestMessagePresignInput = z.infer<typeof createGuestMessagePresignInputSchema>;
+
+export const createGuestMessagePresignResponseSchema = z.object({
+  uploadUrl: z.string().url(),
+  /** Private message-asset key (m/<invitationId>/<uuid>.<ext>); attach after the PUT. */
+  key: z.string(),
+});
+export type CreateGuestMessagePresignResponse = z.infer<
+  typeof createGuestMessagePresignResponseSchema
+>;
+
+/** POST /api/invitations/:id/messages — one message + 0–N photos; needs at least one. */
+export const createGuestMessageInputSchema = z
+  .object({
+    senderName: z.string().trim().max(40).optional(),
+    message: z.string().trim().max(1000).optional(),
+    photoKeys: z
+      .array(z.string().regex(M_ASSET_KEY_REGEX))
+      .max(GUEST_MESSAGE_MAX_PHOTOS)
+      .default([]),
+  })
+  .refine((v) => Boolean(v.message) || v.photoKeys.length > 0, "메시지나 사진 중 하나는 필요합니다");
+export type CreateGuestMessageInput = z.infer<typeof createGuestMessageInputSchema>;
+
+/** Owner inbox view: each photo carries a short-lived presigned GET URL. */
+export const guestMessageSchema = z.object({
+  id: z.string().uuid(),
+  senderName: z.string().nullable(),
+  message: z.string().nullable(),
+  photos: z.array(z.object({ key: z.string(), url: z.string().url() })),
+  readAt: z.string().datetime().nullable(),
+  createdAt: z.string().datetime(),
+});
+export type GuestMessage = z.infer<typeof guestMessageSchema>;
+
+export const guestMessageListResponseSchema = z.object({
+  messages: z.array(guestMessageSchema),
+  total: z.number().int(),
+  unread: z.number().int(),
+});
+export type GuestMessageListResponse = z.infer<typeof guestMessageListResponseSchema>;

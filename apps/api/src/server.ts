@@ -5,6 +5,7 @@ import Fastify from "fastify";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth/auth.js";
 import { corsOrigins, env } from "./env.js";
+import { guestMessageRoutes } from "./routes/guest-messages.js";
 import { guestUploadRoutes } from "./routes/guest-uploads.js";
 import { guestbookRoutes } from "./routes/guestbook.js";
 import { healthRoutes } from "./routes/health.js";
@@ -64,6 +65,7 @@ export function buildServer() {
   app.register(rsvpRoutes, { prefix: "/api/invitations" });
   app.register(guestbookRoutes, { prefix: "/api/invitations" });
   app.register(guestUploadRoutes, { prefix: "/api/invitations" });
+  app.register(guestMessageRoutes, { prefix: "/api/invitations" });
   app.register(uploadRoutes, { prefix: "/api/uploads" });
 
   return app;
