@@ -36,7 +36,7 @@ const THEME: Theme = {
   tokens: {
     bg: "#ffffff",
     surface: "#ffffff",
-    ink: "#474646",
+    ink: "#3a3838",
     muted: "#a0a0a0",
     accent: "#e1926a",
     accentSoft: "#edcbb3",
@@ -48,7 +48,7 @@ const THEME: Theme = {
     body: FONT_STACKS.serifKr,
     script: FONT_STACKS.script,
   },
-  hero: "full-bleed",
+  hero: "letter",
   gallery: "grid",
   eyebrowCaps: false,
   buttonShape: "outline",

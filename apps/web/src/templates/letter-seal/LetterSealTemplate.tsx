@@ -31,13 +31,13 @@ import { ClosingPhotos } from "../sections/ClosingPhotos";
  */
 const THEME: Theme = {
   tokens: {
-    bg: "#f7f7f7",
-    surface: "#ffffff",
+    bg: "#f4f1ec",
+    surface: "#fbf9f5",
     ink: "#161614",
     muted: "#605c5b",
     accent: "#5d2727",
-    accentSoft: "#efebe7",
-    hairline: "#e7e1da",
+    accentSoft: "#ece6dd",
+    hairline: "#e3dccf",
     onAccent: "#ffffff",
   },
   fonts: {
