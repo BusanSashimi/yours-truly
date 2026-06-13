@@ -40,6 +40,7 @@ const THEME: Theme = {
     ink: "#1c1d1a",
     muted: "#8c8d88",
     accent: "#516349",
+    accent2: "#cf8f97",
     accentSoft: "#dee4e2",
     hairline: "#e5e5e5",
     onAccent: "#ffffff",
