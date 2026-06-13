@@ -4,15 +4,39 @@ import type {
   InvitationTemplateId,
 } from "@yours-truly/shared";
 
+// Fixed identifiers so static generation is deterministic. Templates only read
+// `invitation.id` for the (disabled) interactive sections, so a single id is
+// fine; it also prefixes the shared sample photo keys below.
+const SAMPLE_INVITATION_ID = "00000000-0000-4000-8000-000000000000";
+const SAMPLE_TIMESTAMP = "2026-01-01T00:00:00.000Z";
+
+// Shared sample photos (Unsplash, free license) uploaded once to the asset
+// bucket under this invitation's `i/<id>/` prefix; the same set is reused
+// across all 12 designs. Keys follow ASSET_KEY_REGEX (i/<uuid>/<uuid>.<ext>).
+const PHOTO = (uuid: string) => `i/${SAMPLE_INVITATION_ID}/${uuid}.jpg`;
+const HERO_IMAGE_KEY = PHOTO("0a9d2a03-885b-4950-8a0c-81d495897490");
+const GALLERY_IMAGE_KEYS = [
+  PHOTO("0b469198-b6fd-4b9b-9fa3-ab7ea99e7c83"),
+  PHOTO("4dc7929b-5bdc-4a97-a502-e9ac59fe66e2"),
+  PHOTO("43395d36-9c54-464b-ba64-0d32cd457a1a"),
+  PHOTO("7bba2069-7f06-4fc2-9bdd-8011c0f1fdf2"),
+  PHOTO("bbef9c50-cf80-4b46-b8da-455724319102"),
+  PHOTO("f490fb6a-f1ac-43e2-b56c-c258a32ec806"),
+];
+const CLOSING_IMAGE_KEYS = [PHOTO("cbf5da2c-526e-4b1e-8ad2-9a9351db4abf")];
+
 /**
- * Static sample content for the public design gallery (/samples). One rich,
- * photo-free invitation rendered through every template so clients can browse
- * the real designs without any seeded DB rows. No image keys (templates fall
- * back to placeholder grounds), and every interactive/API-backed section
- * (RSVP, guestbook, guest upload) is disabled so a sample page makes no
- * network calls. The per-template page overrides `template`.
+ * Static sample content for the public design gallery (/samples). One rich
+ * invitation rendered through every template so clients can browse the real
+ * designs without any seeded DB rows. Photos come from a shared Unsplash set
+ * (above); every interactive/API-backed section (RSVP, guestbook, guest
+ * upload) is disabled so a sample page makes no network calls. The
+ * per-template page overrides `template`.
  */
 const SAMPLE_FIELDS: InvitationDesignFields = {
+  heroImageKey: HERO_IMAGE_KEY,
+  galleryImageKeys: GALLERY_IMAGE_KEYS,
+  closingImageKeys: CLOSING_IMAGE_KEYS,
   groomName: "김민준",
   brideName: "이민지",
   // 2026-10-24 13:00 KST
@@ -107,12 +131,6 @@ const SAMPLE_FIELDS: InvitationDesignFields = {
   rsvpEnabled: false,
   guestbookEnabled: false,
 };
-
-// Fixed identifiers so static generation is deterministic. Templates only read
-// `invitation.id` for the (disabled) interactive sections, so a single id is
-// fine; `design` is unused by the renderer but mirrors the fields for parity.
-const SAMPLE_INVITATION_ID = "00000000-0000-4000-8000-000000000000";
-const SAMPLE_TIMESTAMP = "2026-01-01T00:00:00.000Z";
 
 /** Build the `Invitation` envelope a template expects for a given design. */
 export function sampleInvitation(templateId: InvitationTemplateId): Invitation {
