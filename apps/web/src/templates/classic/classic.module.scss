@@ -1,0 +1,137 @@
+// Template "classic" — cream editorial. Single centered column, generous
+// vertical rhythm, gold small-caps accents. Display lines render in the
+// serif pair (Playfair for latin, Noto Serif KR for Korean); the caption
+// layer (eyebrows, time line, address, button) is a letterspaced sans like
+// the mock — it also keeps digits lining instead of Playfair's dipping
+// figures next to hangul.
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 14px 16px 96px;
+  background: #faf8f5;
+  color: #2b2925;
+  font-family: var(--font-display), var(--font-serif-kr), "Noto Serif KR", serif;
+}
+
+.column {
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero {
+  position: relative;
+  aspect-ratio: 5 / 8;
+  margin-bottom: 56px;
+  overflow: hidden;
+}
+
+.heroImg {
+  object-fit: cover;
+}
+
+.eyebrow {
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #a98f63;
+
+  // No hero photo yet: give the opening line breathing room from the top.
+  &:first-child {
+    padding-top: 72px;
+  }
+}
+
+.names {
+  margin-top: 26px;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.4;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+
+  .amp {
+    margin: 0 14px;
+  }
+}
+
+.message {
+  max-width: 320px;
+  margin: 52px auto 0;
+  font-size: 15px;
+  line-height: 2;
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  color: #57534c;
+}
+
+.dateBlock {
+  margin-top: 60px;
+}
+
+.rule {
+  width: 48px;
+  margin: 0 auto 34px;
+  border: 0;
+  border-top: 1px solid #ddd3c4;
+}
+
+.ruleBelow {
+  margin: 34px auto 0;
+}
+
+.date {
+  font-size: 29px;
+  font-weight: 500;
+}
+
+.dateSub {
+  margin-top: 14px;
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: #3a362f;
+}
+
+.venue {
+  margin-top: 68px;
+}
+
+.sectionEyebrow {
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #a98f63;
+}
+
+.venueName {
+  margin-top: 16px;
+  font-size: 19px;
+  font-weight: 500;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.venueAddress {
+  margin-top: 6px;
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 13px;
+  color: #8c8780;
+  overflow-wrap: anywhere;
+}
+
+.outlineButton {
+  display: inline-block;
+  margin-top: 26px;
+  padding: 13px 30px;
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: #2b2925;
+  text-decoration: none;
+  border: 1px solid #d8cfc0;
+}

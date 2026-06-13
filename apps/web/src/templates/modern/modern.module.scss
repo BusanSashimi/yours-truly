@@ -1,0 +1,188 @@
+// Template "modern" — cinematic full-bleed. A 100dvh hero photo under a dark
+// gradient scrim with centered white overlay text, then a white details
+// section of thin-bordered cards with gold small-caps labels. Latin glyphs
+// render in the display serif (Playfair), Korean falls through per glyph.
+
+.page {
+  background: #fff;
+  color: #2b2925;
+  font-family: var(--font-display), var(--font-serif-kr), "Noto Serif KR", serif;
+}
+
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 24px 24px 110px;
+  overflow: hidden;
+  text-align: center;
+  color: #fff;
+  // No photo yet: a deep warm charcoal keeps the overlay legible.
+  background: #2e2b28;
+}
+
+.heroImg {
+  object-fit: cover;
+}
+
+// Darkens the lower half so the white overlay stays readable on any photo.
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(24, 21, 18, 0) 35%,
+    rgba(24, 21, 18, 0.35) 65%,
+    rgba(24, 21, 18, 0.72) 100%
+  );
+}
+
+.overlay {
+  position: relative;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.names {
+  margin-top: 22px;
+  // The mock's display lockup dominates the screen — "The Wedding" alone
+  // spans ~85% of the viewport width, stacking across several lines.
+  font-size: clamp(48px, 13vw, 62px);
+  font-weight: 500;
+  font-style: italic;
+  // Playfair's real italic for Latin; Korean glyphs stay upright.
+  font-synthesis: none;
+  line-height: 1.25;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+
+  .amp {
+    margin: 0 12px;
+  }
+}
+
+.numericDate {
+  margin-top: 26px;
+  font-size: 30px;
+  letter-spacing: 0.12em;
+}
+
+.calendarButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 30px;
+  padding: 13px 26px;
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: #fff;
+  text-decoration: none;
+  background: #1d1b18;
+  border-radius: 999px;
+}
+
+.scrollCue {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+}
+
+.details {
+  padding: 78px 24px 96px;
+  background: #fff;
+}
+
+.column {
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.heading {
+  font-size: 27px;
+  font-weight: 500;
+}
+
+.message {
+  max-width: 340px;
+  margin: 30px auto 0;
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 14px;
+  line-height: 1.95;
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  color: #6f6a63;
+}
+
+.cards {
+  display: grid;
+  gap: 14px;
+  margin-top: 46px;
+}
+
+.card {
+  padding: 30px 24px;
+  border: 1px solid #e7e2da;
+}
+
+.cardIcon {
+  display: block;
+  line-height: 0;
+  color: #a98f63;
+}
+
+.cardLabel {
+  margin-top: 12px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #a98f63;
+}
+
+.cardTitle {
+  margin-top: 12px;
+  font-size: 19px;
+  font-weight: 500;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.cardSub {
+  margin-top: 8px;
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 13px;
+  color: #6f6a63;
+}
+
+.mapButton {
+  display: block;
+  margin-top: 40px;
+  padding: 15px 0;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: #2b2925;
+  text-decoration: none;
+  border: 1px solid #2b2925;
+}

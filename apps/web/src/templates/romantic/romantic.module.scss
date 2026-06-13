@@ -1,0 +1,141 @@
+// Template "romantic" — warm polaroid keepsake. A tilted white polaroid frame
+// near the top, gold italic accents, small-caps detail lines, and a letter-like
+// message on warm cream. Latin glyphs render in the display serif (Playfair),
+// Korean falls through to Noto Serif KR per glyph.
+
+.page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding: 52px 16px 120px;
+  background: #fbf7f0;
+  color: #3a352e;
+  font-family: var(--font-display), var(--font-serif-kr), "Noto Serif KR", serif;
+}
+
+.column {
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.polaroid {
+  max-width: 340px;
+  margin: 0 auto;
+  padding: 12px 12px 52px;
+  background: #ffffff;
+  box-shadow: 0 16px 38px rgba(58, 53, 46, 0.14);
+  transform: rotate(-2deg);
+}
+
+.photo {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.photoImg {
+  object-fit: cover;
+}
+
+.caption {
+  margin-top: 26px;
+}
+
+// No photo yet: the caption stands alone as a plain centered heading.
+.plainHeading {
+  padding-top: 44px;
+}
+
+.eyebrow {
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #8a8378;
+}
+
+.names {
+  margin-top: 12px;
+  font-size: 30px;
+  font-weight: 500;
+  line-height: 1.4;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+
+  .amp {
+    margin: 0 12px;
+    font-style: italic;
+    color: #b08d57;
+  }
+}
+
+.inviteLine {
+  max-width: 250px;
+  margin: 46px auto 0;
+  font-size: 20px;
+  font-style: italic;
+  line-height: 1.55;
+  color: #b08d57;
+}
+
+.details {
+  margin-top: 42px;
+}
+
+.detailLine {
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  line-height: 1.7;
+  text-transform: uppercase;
+  color: #8a8378;
+
+  & + & {
+    margin-top: 12px;
+  }
+}
+
+.letter {
+  margin-top: 64px;
+}
+
+.flourish {
+  width: 40px;
+  margin: 0 auto 42px;
+  border: 0;
+  border-top: 1px solid #c9b189;
+}
+
+.message {
+  max-width: 320px;
+  margin: 0 auto;
+  font-size: 15px;
+  line-height: 2;
+  white-space: pre-line;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  color: #5d574e;
+}
+
+.mapBlock {
+  margin-top: 64px;
+}
+
+.outlineButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 28px;
+  font-family: var(--font-sans-kr), "Noto Sans KR", sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  color: #3a352e;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid #d9cfc0;
+}
+
+.pin {
+  width: 13px;
+  height: 13px;
+}

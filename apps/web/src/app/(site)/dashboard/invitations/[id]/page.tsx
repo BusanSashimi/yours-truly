@@ -4,9 +4,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState, type FormEvent } from "react";
 import {
+  DEFAULT_INVITATION_TEMPLATE_ID,
   invitationDesignFieldsSchema,
+  resolveInvitationTemplateId,
   type Invitation,
   type InvitationDesignFields,
+  type InvitationTemplateId,
 } from "@yours-truly/shared";
 import {
   ApiRequestError,
@@ -17,24 +20,43 @@ import {
 } from "@/lib/api";
 import { assetUrl, isRenderableAssetKey } from "@/lib/assets";
 import { reencodeToJpeg } from "@/lib/image-processing";
+import { TemplatePicker } from "../../template-picker";
 import styles from "../../dashboard.module.scss";
 
-/** datetime-local input value (browser-local wall time) for an ISO instant. */
+// The ceremony time is always entered and shown as Korean wall-clock time: the
+// product is Korean-market and the guest page renders pinned to Asia/Seoul (see
+// templates/format.ts). So the datetime-local picker is interpreted against a
+// fixed +09:00 — NOT the editor's browser timezone, which would otherwise shift
+// the stored instant when a couple edits from abroad. KST has no DST in the
+// modern era, so a constant offset is exact for any wedding date.
+const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
+
+/** datetime-local input value (KST wall time) for an ISO instant. */
 function isoToLocalInput(iso: string | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
+  // Shift the instant into KST, then read UTC fields so the picker shows
+  // Korean wall time regardless of where the editor is.
+  const kst = new Date(d.getTime() + KST_OFFSET_MS);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth() + 1)}-${pad(kst.getUTCDate())}T${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
 }
 
+/** ISO instant for a datetime-local value read as KST wall time. */
 function localInputToIso(value: string): string | undefined {
-  if (!value) return undefined;
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? undefined : d.toISOString();
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
+  if (!m) return undefined;
+  const [, year, month, day, hour, minute] = m;
+  // These components are KST wall time; the UTC instant is 9h earlier.
+  return new Date(
+    Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute)) -
+      KST_OFFSET_MS,
+  ).toISOString();
 }
 
 const FIELD_KEYS = [
+  "template",
   "groomName",
   "brideName",
   "dateTime",
@@ -54,6 +76,7 @@ export default function InvitationEditorPage({
 
   const [invitation, setInvitation] = useState<Invitation | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [template, setTemplate] = useState<InvitationTemplateId>(DEFAULT_INVITATION_TEMPLATE_ID);
   const [form, setForm] = useState({
     groomName: "",
     brideName: "",
@@ -76,6 +99,7 @@ export default function InvitationEditorPage({
         setInvitation(inv);
         const parsed = invitationDesignFieldsSchema.safeParse(inv.design);
         const fields: InvitationDesignFields = parsed.success ? parsed.data : {};
+        setTemplate(resolveInvitationTemplateId(fields.template));
         setForm({
           groomName: fields.groomName ?? "",
           brideName: fields.brideName ?? "",
@@ -108,6 +132,7 @@ export default function InvitationEditorPage({
   function buildDesign(): Record<string, unknown> {
     const design: Record<string, unknown> = { ...invitation?.design };
     for (const key of FIELD_KEYS) delete design[key];
+    design.template = template;
     if (form.groomName.trim()) design.groomName = form.groomName.trim();
     if (form.brideName.trim()) design.brideName = form.brideName.trim();
     const iso = localInputToIso(form.dateTimeLocal);
@@ -231,6 +256,17 @@ export default function InvitationEditorPage({
 
       <form className={styles.form} onSubmit={onSave}>
         <div className={styles.heroField}>
+          <span className={styles.heroLabel}>디자인 템플릿</span>
+          <TemplatePicker
+            value={template}
+            onChange={(id) => {
+              setTemplate(id);
+              setNotice(null);
+            }}
+          />
+        </div>
+
+        <div className={styles.heroField}>
           <span className={styles.heroLabel}>대표 사진</span>
           {form.heroImageKey ? (
             <div className={styles.heroPreviewWrap}>
@@ -279,7 +315,7 @@ export default function InvitationEditorPage({
 
         <div className={styles.fieldRow}>
           <label className={styles.field}>
-            <span>예식 일시</span>
+            <span>예식 일시 (한국 시간)</span>
             <input
               type="datetime-local"
               value={form.dateTimeLocal}

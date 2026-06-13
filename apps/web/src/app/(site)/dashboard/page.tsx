@@ -3,8 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
-import { slugSchema, type Invitation } from "@yours-truly/shared";
+import {
+  DEFAULT_INVITATION_TEMPLATE_ID,
+  slugSchema,
+  type Invitation,
+  type InvitationTemplateId,
+} from "@yours-truly/shared";
 import { ApiRequestError, createInvitation, deleteInvitation, listInvitations } from "@/lib/api";
+import { TemplatePicker } from "./template-picker";
 import styles from "./dashboard.module.scss";
 
 const STATUS_LABEL = { draft: "초안", published: "게시됨" } as const;
@@ -14,6 +20,7 @@ export default function DashboardPage() {
   const [invitations, setInvitations] = useState<Invitation[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [slug, setSlug] = useState("");
+  const [template, setTemplate] = useState<InvitationTemplateId>(DEFAULT_INVITATION_TEMPLATE_ID);
   const [createError, setCreateError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -35,7 +42,7 @@ export default function DashboardPage() {
 
     setCreating(true);
     try {
-      const invitation = await createInvitation({ slug: parsed.data });
+      const invitation = await createInvitation({ slug: parsed.data, design: { template } });
       router.push(`/dashboard/invitations/${invitation.id}`);
     } catch (e) {
       setCreateError(
@@ -81,6 +88,8 @@ export default function DashboardPage() {
             {creating ? "만드는 중…" : "만들기"}
           </button>
         </div>
+        <span className={styles.templateLabel}>디자인 템플릿</span>
+        <TemplatePicker value={template} onChange={setTemplate} />
         {createError && <p className={styles.error}>{createError}</p>}
       </form>
 

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import {
   invitationDesignFieldsSchema,
@@ -8,7 +7,7 @@ import {
   type InvitationDesignFields,
 } from "@yours-truly/shared";
 import { assetUrl, isRenderableAssetKey } from "@/lib/assets";
-import styles from "./page.module.scss";
+import { templateComponent } from "@/templates";
 
 /**
  * Guests reread a published invitation far more often than couples edit one,
@@ -101,59 +100,8 @@ export default async function InvitationPage({ params }: Props) {
     ? fields.heroImageKey
     : undefined;
 
-  return (
-    <main className={styles.page}>
-      <article className={styles.card}>
-        {heroKey && (
-          <div className={styles.hero}>
-            <Image
-              src={assetUrl(heroKey)}
-              alt=""
-              fill
-              priority
-              sizes="(max-width: 480px) 100vw, 420px"
-              className={styles.heroImg}
-            />
-          </div>
-        )}
-        <p className={styles.eyebrow}>Wedding Invitation</p>
-
-        {fields.groomName && fields.brideName ? (
-          <h1 className={styles.names}>
-            {fields.groomName}
-            <span className={styles.amp} aria-hidden>
-              ·
-            </span>
-            {fields.brideName}
-          </h1>
-        ) : (
-          <h1 className={styles.names}>저희 결혼합니다</h1>
-        )}
-
-        {fields.message && <p className={styles.message}>{fields.message}</p>}
-
-        {(fields.dateTime || fields.venueName) && (
-          <dl className={styles.details}>
-            {fields.dateTime && (
-              <div className={styles.detailRow}>
-                <dt>일시</dt>
-                <dd>{formatCeremonyDate(fields.dateTime)}</dd>
-              </div>
-            )}
-            {fields.venueName && (
-              <div className={styles.detailRow}>
-                <dt>장소</dt>
-                <dd>
-                  {fields.venueName}
-                  {fields.venueAddress && (
-                    <span className={styles.address}>{fields.venueAddress}</span>
-                  )}
-                </dd>
-              </div>
-            )}
-          </dl>
-        )}
-      </article>
-    </main>
-  );
+  // Each template owns the entire page; unknown/missing template ids fall
+  // back to the default so pre-template documents keep rendering.
+  const Template = templateComponent(fields.template);
+  return <Template invitation={invitation} fields={fields} heroKey={heroKey} />;
 }

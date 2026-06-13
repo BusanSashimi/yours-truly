@@ -107,6 +107,23 @@ export const slugSchema = z
   .refine((slug) => !RESERVED_SLUGS.has(slug), "This name is reserved");
 
 /**
+ * Built-in design templates. The chosen id lives in the design doc
+ * (`design.template`) — the design doc is already the per-invitation,
+ * leniently-parsed bag of renderer inputs, so no schema migration is needed
+ * and documents predating templates keep rendering via the default.
+ */
+export const INVITATION_TEMPLATE_IDS = ["classic", "modern", "romantic", "minimal"] as const;
+export type InvitationTemplateId = (typeof INVITATION_TEMPLATE_IDS)[number];
+export const DEFAULT_INVITATION_TEMPLATE_ID: InvitationTemplateId = "classic";
+
+/** Missing/unknown template values resolve to the default, never an error. */
+export function resolveInvitationTemplateId(value: unknown): InvitationTemplateId {
+  return INVITATION_TEMPLATE_IDS.includes(value as InvitationTemplateId)
+    ? (value as InvitationTemplateId)
+    : DEFAULT_INVITATION_TEMPLATE_ID;
+}
+
+/**
  * The invitation's design document. Stored opaquely for now; a versioned
  * structured format will be defined alongside the editor.
  */
@@ -173,26 +190,36 @@ export type InvitationListResponse = z.infer<typeof invitationListResponseSchema
 export const ASSET_KEY_REGEX =
   /^i\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
 
-export const invitationDesignFieldsSchema = z
-  .object({
-    groomName: z.string(),
-    brideName: z.string(),
-    /** ISO datetime of the ceremony. */
-    dateTime: z.string().datetime(),
-    venueName: z.string(),
-    venueAddress: z.string(),
-    /** 모시는 글 — the invitation message shown to guests. */
-    message: z.string(),
-    /**
-     * Hero photo as an S3 object KEY (i/<invitationId>/<uuid>.<ext>), never a
-     * URL: renderers derive the URL from their configured asset origin and
-     * refuse keys outside the invitation's own prefix — arbitrary hosts and
-     * other couples' photos can't be smuggled in, and a CDN cutover later is
-     * config, not a data migration.
-     */
-    heroImageKey: z.string().regex(ASSET_KEY_REGEX),
-  })
-  .partial();
+// Every field is `.optional().catch(undefined)` rather than the object being
+// `.partial()`: leniency must be per-field. With a plain partial object, ONE
+// invalid stored value (a non-string template, an offset-less legacy date, a
+// pre-asset-key URL) fails the whole safeParse — blanking every other field on
+// the public page and handing the editor an empty form whose save would then
+// destroy the surviving data. With catch, only the bad value drops.
+export const invitationDesignFieldsSchema = z.object({
+  /**
+   * Design template id. Deliberately a plain string, not an enum: renderers
+   * map unrecognized values through resolveInvitationTemplateId instead of
+   * rejecting them.
+   */
+  template: z.string().optional().catch(undefined),
+  groomName: z.string().optional().catch(undefined),
+  brideName: z.string().optional().catch(undefined),
+  /** ISO datetime of the ceremony (UTC or offset form). */
+  dateTime: z.string().datetime({ offset: true }).optional().catch(undefined),
+  venueName: z.string().optional().catch(undefined),
+  venueAddress: z.string().optional().catch(undefined),
+  /** 모시는 글 — the invitation message shown to guests. */
+  message: z.string().optional().catch(undefined),
+  /**
+   * Hero photo as an S3 object KEY (i/<invitationId>/<uuid>.<ext>), never a
+   * URL: renderers derive the URL from their configured asset origin and
+   * refuse keys outside the invitation's own prefix — arbitrary hosts and
+   * other couples' photos can't be smuggled in, and a CDN cutover later is
+   * config, not a data migration.
+   */
+  heroImageKey: z.string().regex(ASSET_KEY_REGEX).optional().catch(undefined),
+});
 export type InvitationDesignFields = z.infer<typeof invitationDesignFieldsSchema>;
 
 /** Image uploads (hero photo etc.) — presigned direct-to-S3 PUT. */
