@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import {
   DeleteObjectsCommand,
+  GetObjectCommand,
   ListObjectsV2Command,
   PutObjectCommand,
   S3Client,
@@ -101,6 +102,44 @@ export async function createGuestPresignedUpload(
   return { uploadUrl, key };
 }
 
+/**
+ * Presign a direct-to-S3 PUT for a PRIVATE guest-message photo (QR 메시지·사진),
+ * keyed under `m/<invitationId>/`. Unlike `i/` and `g/`, the `m/` prefix is NOT
+ * in the bucket's public-read policy: the couple views these only through
+ * `createPresignedGetUrl`. Same cryptographic type+size binding as the other
+ * guest upload.
+ */
+export async function createMessagePresignedUpload(
+  invitationId: string,
+  contentType: string,
+  size: number,
+): Promise<{ uploadUrl: string; key: string }> {
+  const key = `m/${invitationId}/${randomUUID()}.${EXT_BY_TYPE[contentType]}`;
+  const command = new PutObjectCommand({
+    Bucket: env.S3_BUCKET,
+    Key: key,
+    ContentType: contentType,
+    ContentLength: size,
+  });
+  const uploadUrl = await getSignedUrl(s3(), command, {
+    expiresIn: 120,
+    signableHeaders: new Set(["content-type"]),
+  });
+  return { uploadUrl, key };
+}
+
+/**
+ * Presign a short-lived GET for a private object (the `m/` message photos), so
+ * the authenticated owner can display media the bucket policy does not serve
+ * publicly. Default 10 minutes — long enough to render an inbox, short enough
+ * that a leaked URL expires quickly.
+ */
+export async function createPresignedGetUrl(key: string, expiresIn = 600): Promise<string> {
+  return getSignedUrl(s3(), new GetObjectCommand({ Bucket: env.S3_BUCKET, Key: key }), {
+    expiresIn,
+  });
+}
+
 /** Best-effort delete of every object under a single S3 prefix (paginated). */
 async function deletePrefix(prefix: string): Promise<void> {
   let continuationToken: string | undefined;
@@ -126,15 +165,17 @@ async function deletePrefix(prefix: string): Promise<void> {
 }
 
 /**
- * Best-effort removal of every object belonging to an invitation — both the
- * couple's own `i/` assets and any guest-uploaded `g/` media — called when the
- * invitation is deleted, so nothing stays publicly fetchable. Errors are the
- * caller's to log; deletion of the DB row must not be blocked by S3 hiccups.
+ * Best-effort removal of every object belonging to an invitation — the couple's
+ * own `i/` assets, guest-uploaded `g/` media, and private message photos under
+ * `m/` — called when the invitation is deleted, so nothing is left orphaned in
+ * the bucket. Errors are the caller's to log; deletion of the DB row must not be
+ * blocked by S3 hiccups.
  */
 export async function deleteAssetPrefix(invitationId: string): Promise<void> {
   if (!isS3Configured()) return;
   await deletePrefix(`i/${invitationId}/`);
   await deletePrefix(`g/${invitationId}/`);
+  await deletePrefix(`m/${invitationId}/`);
 }
 
 /** Best-effort delete of a single guest-upload object by key. */
@@ -144,6 +185,17 @@ export async function deleteAssetObject(key: string): Promise<void> {
     new DeleteObjectsCommand({
       Bucket: env.S3_BUCKET,
       Delete: { Objects: [{ Key: key }], Quiet: true },
+    }),
+  );
+}
+
+/** Best-effort batch delete of objects by key (≤1000 per call) — message photos. */
+export async function deleteAssetObjects(keys: string[]): Promise<void> {
+  if (!isS3Configured() || keys.length === 0) return;
+  await s3().send(
+    new DeleteObjectsCommand({
+      Bucket: env.S3_BUCKET,
+      Delete: { Objects: keys.map((Key) => ({ Key })), Quiet: true },
     }),
   );
 }

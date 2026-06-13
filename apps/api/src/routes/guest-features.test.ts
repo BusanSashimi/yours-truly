@@ -3,8 +3,10 @@ import { after, before, beforeEach, test } from "node:test";
 import { sql } from "drizzle-orm";
 import type { LightMyRequestResponse } from "fastify";
 import {
+  createGuestMessagePresignResponseSchema,
   createGuestUploadResponseSchema,
   guestbookListResponseSchema,
+  guestMessageListResponseSchema,
   guestUploadListResponseSchema,
   rsvpListResponseSchema,
 } from "@yours-truly/shared";
@@ -22,7 +24,7 @@ after(async () => {
 });
 beforeEach(async () => {
   await db.execute(
-    sql`TRUNCATE TABLE rsvp_responses, guestbook_entries, guest_uploads, invitations, sessions, accounts, verifications, users RESTART IDENTITY CASCADE`,
+    sql`TRUNCATE TABLE rsvp_responses, guestbook_entries, guest_uploads, guest_messages, invitations, sessions, accounts, verifications, users RESTART IDENTITY CASCADE`,
   );
 });
 
@@ -241,4 +243,188 @@ test("guest-uploads: gated by the open window, then presign + confirm + list", a
   const body = guestUploadListResponseSchema.parse(list.json());
   assert.equal(body.uploads.length, 1);
   assert.equal(body.uploads[0].key, key);
+});
+
+// --- Guest messages (private QR inbox) ---
+
+/** Presign a message-photo upload and return the validated m/<id>/ key. */
+async function presignMessageKey(id: string): Promise<string> {
+  const res = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${id}/messages/presign`,
+    payload: { contentType: "image/jpeg", size: 1000 },
+  });
+  assert.equal(res.statusCode, 200, res.body);
+  return createGuestMessagePresignResponseSchema.parse(res.json()).key;
+}
+
+test("guest-messages: gated by the open window, then presign", async () => {
+  const cookie = await signUp();
+  // disabled by default
+  const disabledId = await publishedInvitation(cookie, "gm-off");
+  const off = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${disabledId}/messages/presign`,
+    payload: { contentType: "image/jpeg", size: 1000 },
+  });
+  assert.equal(off.statusCode, 403);
+  assert.equal(off.json().error.code, "guest_message_disabled");
+
+  // enabled but opens in the future
+  const futureId = await publishedInvitation(cookie, "gm-future", {
+    guestMessages: { enabled: true, openDate: "2999-01-01T00:00:00.000Z" },
+  });
+  const notOpen = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${futureId}/messages/presign`,
+    payload: { contentType: "image/jpeg", size: 1000 },
+  });
+  assert.equal(notOpen.statusCode, 403);
+  assert.equal(notOpen.json().error.code, "guest_message_not_open");
+
+  // enabled + open
+  const id = await publishedInvitation(cookie, "gm-open", {
+    guestMessages: { enabled: true, openDate: "2020-01-01T00:00:00.000Z" },
+  });
+  const key = await presignMessageKey(id);
+  assert.ok(key.startsWith(`m/${id}/`));
+  assert.ok(key.endsWith(".jpg"));
+});
+
+test("guest-messages: create accepts message-only / photos-only / both; rejects empty, foreign key, over-cap", async () => {
+  const cookie = await signUp();
+  const id = await publishedInvitation(cookie, "gm-create", {
+    guestMessages: { enabled: true, openDate: "2020-01-01T00:00:00.000Z" },
+  });
+
+  // message only
+  const msgOnly = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${id}/messages`,
+    payload: { senderName: "하객", message: "축하해요" },
+  });
+  assert.equal(msgOnly.statusCode, 201, msgOnly.body);
+
+  // photos only
+  const photosOnly = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${id}/messages`,
+    payload: { photoKeys: [await presignMessageKey(id)] },
+  });
+  assert.equal(photosOnly.statusCode, 201, photosOnly.body);
+
+  // both
+  const both = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${id}/messages`,
+    payload: { message: "사진과 함께", photoKeys: [await presignMessageKey(id)] },
+  });
+  assert.equal(both.statusCode, 201, both.body);
+
+  // neither message nor photos → 400
+  const empty = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${id}/messages`,
+    payload: { senderName: "익명" },
+  });
+  assert.equal(empty.statusCode, 400);
+
+  // a key minted for another invitation → 400
+  const other = await publishedInvitation(cookie, "gm-other", {
+    guestMessages: { enabled: true, openDate: "2020-01-01T00:00:00.000Z" },
+  });
+  const foreign = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${id}/messages`,
+    payload: { photoKeys: [await presignMessageKey(other)] },
+  });
+  assert.equal(foreign.statusCode, 400);
+
+  // over the per-message photo cap → 400
+  const tooMany = Array.from(
+    { length: 11 },
+    (_, i) => `m/${id}/00000000-0000-4000-8000-${String(i).padStart(12, "0")}.jpg`,
+  );
+  const over = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${id}/messages`,
+    payload: { photoKeys: tooMany },
+  });
+  assert.equal(over.statusCode, 400);
+});
+
+test("guest-messages: owner lists with presigned photo urls + unread, marks read, deletes; non-owner blocked", async () => {
+  const cookie = await signUp();
+  const id = await publishedInvitation(cookie, "gm-inbox", {
+    guestMessages: { enabled: true, openDate: "2020-01-01T00:00:00.000Z" },
+  });
+
+  const key = await presignMessageKey(id);
+  const created = await app.inject({
+    method: "POST",
+    url: `/api/invitations/${id}/messages`,
+    payload: { senderName: "하객", message: "축하합니다", photoKeys: [key] },
+  });
+  assert.equal(created.statusCode, 201, created.body);
+  const msgId = created.json().message.id as string;
+
+  // anonymous read → 401; a different signed-in user → 404 (not their invitation)
+  const anon = await app.inject({ method: "GET", url: `/api/invitations/${id}/messages` });
+  assert.equal(anon.statusCode, 401);
+  const other = await signUp("other@example.com");
+  const foreign = await app.inject({
+    method: "GET",
+    url: `/api/invitations/${id}/messages`,
+    headers: { cookie: other },
+  });
+  assert.equal(foreign.statusCode, 404);
+
+  // owner read → one message, one presigned photo url, unread = 1
+  const list = await app.inject({
+    method: "GET",
+    url: `/api/invitations/${id}/messages`,
+    headers: { cookie },
+  });
+  assert.equal(list.statusCode, 200, list.body);
+  const body = guestMessageListResponseSchema.parse(list.json());
+  assert.equal(body.total, 1);
+  assert.equal(body.unread, 1);
+  assert.equal(body.messages[0].photos.length, 1);
+  assert.equal(body.messages[0].photos[0].key, key);
+  assert.match(body.messages[0].photos[0].url, /X-Amz-Signature=/);
+
+  // mark read → unread drops to 0
+  const read = await app.inject({
+    method: "PATCH",
+    url: `/api/invitations/${id}/messages/${msgId}/read`,
+    headers: { cookie },
+  });
+  assert.equal(read.statusCode, 204);
+  const list2 = await app.inject({
+    method: "GET",
+    url: `/api/invitations/${id}/messages`,
+    headers: { cookie },
+  });
+  assert.equal(guestMessageListResponseSchema.parse(list2.json()).unread, 0);
+
+  // anonymous delete → 401
+  const anonDel = await app.inject({
+    method: "DELETE",
+    url: `/api/invitations/${id}/messages/${msgId}`,
+  });
+  assert.equal(anonDel.statusCode, 401);
+
+  // owner delete → 204, inbox empties (S3 cleanup is best-effort/fire-and-forget)
+  const del = await app.inject({
+    method: "DELETE",
+    url: `/api/invitations/${id}/messages/${msgId}`,
+    headers: { cookie },
+  });
+  assert.equal(del.statusCode, 204);
+  const list3 = await app.inject({
+    method: "GET",
+    url: `/api/invitations/${id}/messages`,
+    headers: { cookie },
+  });
+  assert.equal(guestMessageListResponseSchema.parse(list3.json()).total, 0);
 });

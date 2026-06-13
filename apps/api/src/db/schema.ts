@@ -185,3 +185,29 @@ export const guestUploads = pgTable(
   (table) => [index("guest_uploads_invitation_id_idx").on(table.invitationId)],
 );
 export type GuestUploadRow = typeof guestUploads.$inferSelect;
+
+/**
+ * Private guest message (QR 메시지·사진). A guest scans the couple's QR code and
+ * leaves one message and/or up to a handful of photos; it is delivered ONLY to
+ * the couple's dashboard inbox, never shown publicly. Photo objects live in S3
+ * under the NON-public `m/<invitationId>/` prefix (surfaced to the owner via
+ * short-lived presigned GET); their keys are kept inline as a text[] since a
+ * message is one unit with few photos. Public write (gated by the design doc's
+ * guestMessages settings), owner-only read/delete.
+ */
+export const guestMessages = pgTable(
+  "guest_messages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    invitationId: uuid("invitation_id")
+      .notNull()
+      .references(() => invitations.id, { onDelete: "cascade" }),
+    senderName: text("sender_name"),
+    message: text("message"),
+    photoKeys: text("photo_keys").array().notNull().default([]),
+    readAt: timestamp("read_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("guest_messages_invitation_id_idx").on(table.invitationId)],
+);
+export type GuestMessageRow = typeof guestMessages.$inferSelect;

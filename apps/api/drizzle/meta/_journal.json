@@ -29,6 +29,13 @@
       "when": 1781337144933,
       "tag": "0003_tan_famine",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781365570454,
+      "tag": "0004_powerful_annihilus",
+      "breakpoints": true
     }
   ]
 }
