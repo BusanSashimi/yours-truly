@@ -36,9 +36,9 @@ const THEME: Theme = {
     surface: "#ffffff",
     ink: "#413f42",
     muted: "#9e9d9f",
-    accent: "#9a8c73",
-    accentSoft: "#ebe0d5",
-    hairline: "#e7e0d6",
+    accent: "#a59a89",
+    accentSoft: "#e9e3d8",
+    hairline: "#e8e4dc",
     onAccent: "#ffffff",
   },
   fonts: {

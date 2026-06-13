@@ -48,7 +48,7 @@ const THEME: Theme = {
     body: FONT_STACKS.sansKr,
     script: FONT_STACKS.script,
   },
-  hero: "full-bleed",
+  hero: "polaroid",
   gallery: "carousel",
   eyebrowCaps: false,
   buttonShape: "solid",

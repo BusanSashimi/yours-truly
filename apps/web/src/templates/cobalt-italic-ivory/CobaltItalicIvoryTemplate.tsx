@@ -47,7 +47,7 @@ const THEME: Theme = {
     body: FONT_STACKS.sansKr,
     script: FONT_STACKS.script,
   },
-  hero: "monogram",
+  hero: "letter",
   gallery: "grid",
   eyebrowCaps: true,
   buttonShape: "solid",

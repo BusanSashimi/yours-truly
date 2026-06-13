@@ -49,7 +49,7 @@ const THEME: Theme = {
     body: FONT_STACKS.serifKr,
     script: FONT_STACKS.script,
   },
-  hero: "arch",
+  hero: "full-bleed",
   gallery: "grid",
   eyebrowCaps: false,
   buttonShape: "pill",

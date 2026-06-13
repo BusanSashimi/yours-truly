@@ -35,8 +35,8 @@ import { ClosingPhotos } from "../sections/ClosingPhotos";
  */
 const THEME: Theme = {
   tokens: {
-    bg: "#fafafa",
-    surface: "#f8f4f1",
+    bg: "#f3f1ec",
+    surface: "#efece6",
     ink: "#1c1d1a",
     muted: "#8c8d88",
     accent: "#516349",
@@ -46,7 +46,7 @@ const THEME: Theme = {
   },
   fonts: {
     display: FONT_STACKS.displaySerif,
-    body: FONT_STACKS.serifKr,
+    body: FONT_STACKS.sansKr,
     script: FONT_STACKS.script,
   },
   hero: "full-bleed",

@@ -33,11 +33,11 @@ import { ClosingPhotos } from "../sections/ClosingPhotos";
  */
 const THEME: Theme = {
   tokens: {
-    bg: "#faf9f3",
+    bg: "#f4efe4",
     surface: "#ffffff",
     ink: "#725533",
     muted: "#585757",
-    accent: "#5f8d4e",
+    accent: "#8fa968",
     accentSoft: "#a4be7b",
     hairline: "#e2ddcf",
     onAccent: "#ffffff",
