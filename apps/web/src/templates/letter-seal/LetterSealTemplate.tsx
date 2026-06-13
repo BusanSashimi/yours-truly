@@ -36,6 +36,7 @@ const THEME: Theme = {
     ink: "#161614",
     muted: "#605c5b",
     accent: "#5d2727",
+    accent2: "#5b6b4e",
     accentSoft: "#ece6dd",
     hairline: "#e3dccf",
     onAccent: "#ffffff",
@@ -61,6 +62,7 @@ export function LetterSealTemplate({ invitation, fields, heroKey }: TemplateProp
         brideName={fields.brideName}
         dateTime={fields.dateTime}
         scriptLine="You are invited"
+        seal
       />
       <Quote quote={fields.quote} />
       <Greeting message={fields.message} title="저희 결혼합니다" />

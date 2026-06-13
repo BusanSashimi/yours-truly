@@ -14,9 +14,45 @@ type HeroProps = {
   dateTime?: string;
   scriptLine?: string;
   quote?: InvitationDesignFields["quote"];
+  /** Stamp a wax seal (with the numeric date) on the "letter" hero. */
+  seal?: boolean;
 };
 
 const FALLBACK_HEADING = "저희 결혼합니다";
+
+/** A stylized eucalyptus ring of leaves framing the "wreath" hero. */
+function EucalyptusWreath() {
+  const cx = 100;
+  const cy = 100;
+  const r = 72;
+  const leaves = Array.from({ length: 24 }, (_, i) => {
+    const angle = (i / 24) * Math.PI * 2 - Math.PI / 2;
+    return {
+      i,
+      x: cx + r * Math.cos(angle),
+      y: cy + r * Math.sin(angle),
+      rot: (angle * 180) / Math.PI + 90,
+      ry: i % 2 === 0 ? 12 : 8,
+    };
+  });
+  return (
+    <svg className={styles.wreathArt} viewBox="0 0 200 200" aria-hidden focusable="false">
+      <g fill="currentColor">
+        {leaves.map(({ i, x, y, rot, ry }) => (
+          <ellipse
+            key={i}
+            cx={x}
+            cy={y}
+            rx={4}
+            ry={ry}
+            opacity={0.5}
+            transform={`rotate(${rot} ${x} ${y})`}
+          />
+        ))}
+      </g>
+    </svg>
+  );
+}
 
 /** Names joined with a hairline-spaced separator, or the fallback heading. */
 function namesOrFallback(groomName?: string, brideName?: string): string {
@@ -47,6 +83,7 @@ export function Hero({
   dateTime,
   scriptLine,
   quote,
+  seal,
 }: HeroProps) {
   const names = namesOrFallback(groomName, brideName);
   const hasNames = Boolean(groomName && brideName);
@@ -63,6 +100,7 @@ export function Hero({
               <p className={styles.dateLong}>{formatDate(dateTime)}</p>
             </>
           )}
+          {seal && dateTime && <span className={styles.waxSeal}>{formatDateNumeric(dateTime)}</span>}
           {quote?.text && (
             <figure className={styles.quote}>
               <blockquote>{quote.text}</blockquote>
@@ -78,6 +116,7 @@ export function Hero({
     return (
       <section className={`${styles.section} ${styles.wreath}`}>
         <div className={styles.wreathFrame}>
+          <EucalyptusWreath />
           <div className={styles.wreathInner}>
             {scriptLine && <p className={styles.script}>{scriptLine}</p>}
             <h1 className={hasNames ? styles.namesDisplay : styles.fallbackHeading}>{names}</h1>

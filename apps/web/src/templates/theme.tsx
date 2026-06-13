@@ -37,6 +37,8 @@ export type Theme = {
     hairline: string;
     /** Text/icon color on top of `accent`/dark fills. */
     onAccent: string;
+    /** Optional secondary accent for two-tone designs; falls back to `accent`. */
+    accent2?: string;
   };
   fonts: {
     /** Display font-family stack (headings, names). */
@@ -60,6 +62,7 @@ function themeStyle(theme: Theme): CSSProperties {
     "--ink": theme.tokens.ink,
     "--muted": theme.tokens.muted,
     "--accent": theme.tokens.accent,
+    "--accent-2": theme.tokens.accent2 ?? theme.tokens.accent,
     "--accent-soft": theme.tokens.accentSoft,
     "--hairline": theme.tokens.hairline,
     "--on-accent": theme.tokens.onAccent,

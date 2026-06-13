@@ -38,6 +38,7 @@ const THEME: Theme = {
     ink: "#1a201e",
     muted: "#8d918d",
     accent: "#5f6b54",
+    accent2: "#a8857f",
     accentSoft: "#e8e9e0",
     hairline: "#e7e6e4",
     onAccent: "#ffffff",
