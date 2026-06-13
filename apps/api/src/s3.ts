@@ -75,14 +75,34 @@ export async function createPresignedUpload(
 }
 
 /**
- * Best-effort removal of every object under an invitation's prefix — called
- * when the invitation is deleted, so photos of deleted invitations don't stay
- * publicly fetchable. Errors are the caller's to log; deletion of the DB row
- * must not be blocked by S3 hiccups.
+ * Presign a direct-to-S3 PUT for GUEST-uploaded media (게스트스냅), keyed under
+ * a separate `g/<invitationId>/` prefix so guest photos never mix with the
+ * couple's own `i/` assets (different listing, moderation, and cleanup). Same
+ * cryptographic type+size binding as the owner upload. NOTE: the bucket policy
+ * must allow public GetObject on `g/*` (as it does for `i/*`) for these to
+ * display — see deploy notes.
  */
-export async function deleteAssetPrefix(invitationId: string): Promise<void> {
-  if (!isS3Configured()) return;
-  const prefix = `i/${invitationId}/`;
+export async function createGuestPresignedUpload(
+  invitationId: string,
+  contentType: string,
+  size: number,
+): Promise<{ uploadUrl: string; key: string }> {
+  const key = `g/${invitationId}/${randomUUID()}.${EXT_BY_TYPE[contentType]}`;
+  const command = new PutObjectCommand({
+    Bucket: env.S3_BUCKET,
+    Key: key,
+    ContentType: contentType,
+    ContentLength: size,
+  });
+  const uploadUrl = await getSignedUrl(s3(), command, {
+    expiresIn: 120,
+    signableHeaders: new Set(["content-type"]),
+  });
+  return { uploadUrl, key };
+}
+
+/** Best-effort delete of every object under a single S3 prefix (paginated). */
+async function deletePrefix(prefix: string): Promise<void> {
   let continuationToken: string | undefined;
   do {
     const page = await s3().send(
@@ -103,4 +123,27 @@ export async function deleteAssetPrefix(invitationId: string): Promise<void> {
     }
     continuationToken = page.IsTruncated ? page.NextContinuationToken : undefined;
   } while (continuationToken);
+}
+
+/**
+ * Best-effort removal of every object belonging to an invitation — both the
+ * couple's own `i/` assets and any guest-uploaded `g/` media — called when the
+ * invitation is deleted, so nothing stays publicly fetchable. Errors are the
+ * caller's to log; deletion of the DB row must not be blocked by S3 hiccups.
+ */
+export async function deleteAssetPrefix(invitationId: string): Promise<void> {
+  if (!isS3Configured()) return;
+  await deletePrefix(`i/${invitationId}/`);
+  await deletePrefix(`g/${invitationId}/`);
+}
+
+/** Best-effort delete of a single guest-upload object by key. */
+export async function deleteAssetObject(key: string): Promise<void> {
+  if (!isS3Configured()) return;
+  await s3().send(
+    new DeleteObjectsCommand({
+      Bucket: env.S3_BUCKET,
+      Delete: { Objects: [{ Key: key }], Quiet: true },
+    }),
+  );
 }

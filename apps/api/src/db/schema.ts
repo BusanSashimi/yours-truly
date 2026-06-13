@@ -1,4 +1,14 @@
-import { boolean, index, jsonb, pgEnum, pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from "drizzle-orm/pg-core";
 
 /**
  * Auth tables — Better Auth's core schema (user/session/account/verification),
@@ -103,3 +113,75 @@ export const invitations = pgTable(
 
 export type InvitationRow = typeof invitations.$inferSelect;
 export type NewInvitationRow = typeof invitations.$inferInsert;
+
+// Enum values mirror RSVP_ATTENDANCE / RSVP_SIDE in @yours-truly/shared — kept
+// inline (drizzle-kit's CJS resolver can't import the ESM package). Change both.
+export const rsvpAttendance = pgEnum("rsvp_attendance", ["yes", "no"]);
+export const rsvpSide = pgEnum("rsvp_side", ["groom", "bride"]);
+
+/**
+ * Guest-submitted RSVP (참석 여부 전달). Public write, owner-only read; deleted
+ * with its invitation. `meal` is free text (the shared input enum bounds it on
+ * the way in) so the set can evolve without a migration.
+ */
+export const rsvpResponses = pgTable(
+  "rsvp_responses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    invitationId: uuid("invitation_id")
+      .notNull()
+      .references(() => invitations.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    attendance: rsvpAttendance("attendance").notNull(),
+    side: rsvpSide("side"),
+    headcount: integer("headcount"),
+    meal: text("meal"),
+    phone: text("phone"),
+    message: text("message"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("rsvp_responses_invitation_id_idx").on(table.invitationId)],
+);
+export type RsvpResponseRow = typeof rsvpResponses.$inferSelect;
+
+/**
+ * Guestbook message (방명록). Public read + write. `pinHash` is an optional
+ * salted hash of a 4-digit PIN that lets the original author delete their own
+ * entry; the invitation owner can always delete for moderation.
+ */
+export const guestbookEntries = pgTable(
+  "guestbook_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    invitationId: uuid("invitation_id")
+      .notNull()
+      .references(() => invitations.id, { onDelete: "cascade" }),
+    name: text("name").notNull(),
+    message: text("message").notNull(),
+    pinHash: text("pin_hash"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("guestbook_entries_invitation_id_idx").on(table.invitationId)],
+);
+export type GuestbookEntryRow = typeof guestbookEntries.$inferSelect;
+
+/**
+ * Guest-uploaded photo (게스트스냅). The media object lives in S3 under the
+ * `g/<invitationId>/` prefix; this row records its key + optional uploader name
+ * so it can be listed and moderated. Public write (gated by the design doc's
+ * guestUpload.openDate), owner-only delete.
+ */
+export const guestUploads = pgTable(
+  "guest_uploads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    invitationId: uuid("invitation_id")
+      .notNull()
+      .references(() => invitations.id, { onDelete: "cascade" }),
+    key: text("key").notNull(),
+    uploaderName: text("uploader_name"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index("guest_uploads_invitation_id_idx").on(table.invitationId)],
+);
+export type GuestUploadRow = typeof guestUploads.$inferSelect;
