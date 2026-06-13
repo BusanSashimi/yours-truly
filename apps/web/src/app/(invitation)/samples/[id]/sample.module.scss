@@ -1,0 +1,24 @@
+// Floating "back to gallery" affordance overlaid on the full-bleed template.
+// Fixed so it stays reachable as the client scrolls a long invitation.
+.back {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.875rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.12);
+  color: #333;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.95);
+  }
+}

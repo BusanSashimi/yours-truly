@@ -1,3 +1,4 @@
+import Link from "next/link";
 import styles from "./page.module.scss";
 import { NaverLoginButton } from "./naver-login-button";
 
@@ -51,10 +52,10 @@ export default function Home() {
 
         <div className={styles.divider} />
 
-        <a href="#" className={styles.explore}>
+        <Link href="/samples" className={styles.explore}>
           Explore First
           <span aria-hidden>&rarr;</span>
-        </a>
+        </Link>
       </main>
 
       <footer className={styles.footer}>
