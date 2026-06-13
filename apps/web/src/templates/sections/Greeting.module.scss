@@ -1,0 +1,21 @@
+.section {
+  padding: 64px 0;
+  text-align: center;
+}
+
+.title {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.message {
+  max-width: 320px;
+  margin: 28px auto 0;
+  font-size: 15px;
+  line-height: 2;
+  white-space: pre-line;
+  color: var(--muted);
+}

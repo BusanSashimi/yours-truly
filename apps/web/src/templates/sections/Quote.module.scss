@@ -1,0 +1,49 @@
+.section {
+  padding: 88px 0;
+  text-align: center;
+}
+
+.figure {
+  position: relative;
+  margin: 0;
+}
+
+// Large decorative opening quotation mark, sitting behind the text.
+.mark {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 56px;
+  line-height: 0.6;
+  color: var(--accent-soft);
+  opacity: 0.9;
+}
+
+.text {
+  margin: 18px auto 0;
+  max-width: 300px;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.9;
+  white-space: pre-line;
+  color: var(--ink);
+}
+
+.source {
+  margin-top: 24px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+
+  // Short rule above the attribution.
+  &::before {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 1px;
+    margin: 0 auto 14px;
+    background: var(--hairline);
+  }
+}

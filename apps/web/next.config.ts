@@ -18,7 +18,10 @@ const nextConfig: NextConfig = {
     // Exact host + prefix only — the optimizer must never become a proxy for
     // arbitrary origins. No wildcards; query strings rejected.
     remotePatterns: [
+      // Couple's own assets (i/) and guest-uploaded media (g/) — exact host +
+      // prefixes only; the optimizer must never proxy arbitrary origins.
       { protocol: "https", hostname: assetHost, port: "", pathname: "/i/**", search: "" },
+      { protocol: "https", hostname: assetHost, port: "", pathname: "/g/**", search: "" },
     ],
     // Bound the (url, w, q) tuple space a client can make sharp chew through.
     qualities: [60, 75],

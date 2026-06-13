@@ -1,0 +1,96 @@
+.section {
+  padding: 56px 0;
+  text-align: center;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 14px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+}
+
+.photo {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin-bottom: 16px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--hairline);
+}
+
+.img {
+  object-fit: cover;
+}
+
+.side {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: var(--eyebrow-spacing);
+  text-transform: var(--eyebrow-transform);
+  color: var(--accent);
+}
+
+.name {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.metaList {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.meta {
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.metaLabel {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.metaValue {
+  color: var(--muted);
+}
+
+.traits {
+  list-style: none;
+  margin: 14px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.trait {
+  padding: 4px 10px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: var(--ink);
+  background: var(--accent-soft);
+  border-radius: 999px;
+}
