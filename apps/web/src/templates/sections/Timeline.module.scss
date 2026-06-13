@@ -1,0 +1,94 @@
+.section {
+  padding: 56px 0;
+  text-align: center;
+}
+
+.list {
+  list-style: none;
+  margin: 36px 0 0;
+  padding: 0;
+  text-align: left;
+}
+
+// Each milestone hangs off a vertical dotted rule running down the left edge.
+.item {
+  position: relative;
+  padding-left: 28px;
+  padding-bottom: 36px;
+
+  // The rule itself, drawn as a dotted border on the item.
+  &::before {
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 0;
+    left: 4px;
+    border-left: 1px dotted var(--hairline);
+  }
+
+  &:last-child {
+    padding-bottom: 0;
+
+    // Stop the rule at the last marker.
+    &::before {
+      bottom: auto;
+      height: 6px;
+    }
+  }
+}
+
+.marker {
+  position: absolute;
+  top: 5px;
+  left: 0;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 0 3px var(--bg);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+}
+
+.date {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.title {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+}
+
+.photo {
+  position: relative;
+  margin-top: 12px;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--hairline);
+}
+
+.img {
+  object-fit: cover;
+}
+
+.text {
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.9;
+  white-space: pre-line;
+  color: var(--muted);
+}

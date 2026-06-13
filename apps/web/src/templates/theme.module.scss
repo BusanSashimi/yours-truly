@@ -1,0 +1,43 @@
+// Base chrome shared by every template. Colors/fonts come from the theme via
+// CSS variables injected by <TemplateShell>; sections inherit them.
+
+.shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  -webkit-font-smoothing: antialiased;
+}
+
+// Centered reading column for non-full-bleed sections. Mobile-first; the design
+// language is a phone-width invitation, comfortable up to ~480px on desktop.
+.container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding-left: 28px;
+  padding-right: 28px;
+}
+
+.eyebrow {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: var(--eyebrow-spacing);
+  text-transform: var(--eyebrow-transform);
+  color: var(--accent);
+}
+
+.sectionTitle {
+  margin-top: 12px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--ink);
+  text-align: center;
+}

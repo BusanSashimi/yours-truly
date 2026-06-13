@@ -1,0 +1,39 @@
+.section {
+  padding: 56px 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  max-width: 480px;
+  margin: 28px auto 0;
+  padding: 0 28px;
+}
+
+.carousel {
+  display: flex;
+  gap: 10px;
+  margin-top: 28px;
+  padding: 0 28px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+
+  .cell {
+    flex: 0 0 72%;
+    scroll-snap-align: center;
+    aspect-ratio: 4 / 5;
+  }
+}
+
+.cell {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--hairline);
+}
+
+.img {
+  object-fit: cover;
+}

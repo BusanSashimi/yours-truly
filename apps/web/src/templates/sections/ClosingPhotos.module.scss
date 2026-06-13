@@ -1,0 +1,71 @@
+// Full-bleed closing section. The photos stack edge to edge and the farewell
+// message is centered over them in white. Colors/fonts come from the theme,
+// but the overlay text is intentionally white over the darkened photos.
+
+.section {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+// Photo-less fallback: the message floats centered on a deep charcoal panel.
+.panel {
+  min-height: 60vh;
+  align-items: center;
+  justify-content: center;
+  background: #16161a;
+}
+
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  background: #16161a;
+}
+
+.img {
+  object-fit: cover;
+}
+
+// Darkening wash so the white message stays legible over any photo.
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.18) 0%,
+    rgba(0, 0, 0, 0.42) 55%,
+    rgba(0, 0, 0, 0.62) 100%
+  );
+}
+
+// On the photo variant the overlay spans the whole stack and centers the
+// message; on the panel variant it simply centers within the flex container.
+.section:not(.panel) .overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 28px;
+  z-index: 1;
+}
+
+.message {
+  max-width: 320px;
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 500;
+  line-height: 2;
+  letter-spacing: 0.01em;
+  text-align: center;
+  white-space: pre-line;
+  color: #ffffff;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.45);
+}

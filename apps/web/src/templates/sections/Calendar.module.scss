@@ -1,0 +1,64 @@
+.section {
+  padding: 56px 0;
+  text-align: center;
+}
+
+.calendar {
+  max-width: 320px;
+  margin: 28px auto 0;
+}
+
+.weekHeader {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--hairline);
+}
+
+.weekday {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px 0;
+  margin-top: 14px;
+}
+
+.day {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  width: 34px;
+  height: 34px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--ink);
+}
+
+.sun {
+  color: var(--accent);
+}
+
+.sat {
+  color: var(--muted);
+}
+
+.wedding {
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 600;
+}
+
+.time {
+  margin-top: 24px;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
