@@ -39,6 +39,7 @@ export default async function SamplePage({ params }: Props) {
   if (!isTemplateId(id)) notFound();
 
   const Template = templateComponent(id);
+  const fields = sampleFields(id);
   return (
     <>
       <Link href="/samples" className={styles.back}>
@@ -46,8 +47,8 @@ export default async function SamplePage({ params }: Props) {
       </Link>
       <Template
         invitation={sampleInvitation(id)}
-        fields={sampleFields(id)}
-        heroKey={undefined}
+        fields={fields}
+        heroKey={fields.heroImageKey}
       />
     </>
   );
