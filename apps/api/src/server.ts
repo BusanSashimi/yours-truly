@@ -5,8 +5,11 @@ import Fastify from "fastify";
 import { fromNodeHeaders } from "better-auth/node";
 import { auth } from "./auth/auth.js";
 import { corsOrigins, env } from "./env.js";
+import { guestUploadRoutes } from "./routes/guest-uploads.js";
+import { guestbookRoutes } from "./routes/guestbook.js";
 import { healthRoutes } from "./routes/health.js";
 import { invitationRoutes } from "./routes/invitations.js";
+import { rsvpRoutes } from "./routes/rsvp.js";
 import { uploadRoutes } from "./routes/uploads.js";
 
 export function buildServer() {
@@ -55,6 +58,12 @@ export function buildServer() {
   // so paths match in both dev (direct) and prod (behind nginx).
   app.register(healthRoutes, { prefix: "/api" });
   app.register(invitationRoutes, { prefix: "/api/invitations" });
+  // Per-invitation guest features (public write, owner read/moderate) — mounted
+  // under the same prefix; their paths (/:id/rsvp etc.) don't collide with the
+  // CRUD routes above.
+  app.register(rsvpRoutes, { prefix: "/api/invitations" });
+  app.register(guestbookRoutes, { prefix: "/api/invitations" });
+  app.register(guestUploadRoutes, { prefix: "/api/invitations" });
   app.register(uploadRoutes, { prefix: "/api/uploads" });
 
   return app;
