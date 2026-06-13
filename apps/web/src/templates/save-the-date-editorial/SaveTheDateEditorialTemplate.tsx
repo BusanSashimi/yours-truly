@@ -24,7 +24,7 @@ import { ClosingPhotos } from "../sections/ClosingPhotos";
 
 /**
  * Template "save-the-date-editorial" — a magazine-cover mood recreating the
- * Salon de Letter "SAVE THE DATE" design: a near-white #FAFAFA ground, a
+ * Yours Truly "SAVE THE DATE" design: a near-white #FAFAFA ground, a
  * charcoal serif voice (centered all-caps "SAVE THE DATE" over a tall portrait
  * with big stacked date numerals), and small groom-blue / bride-rose label
  * tags. Serif display throughout, solid grey buttons. Like the reference, this

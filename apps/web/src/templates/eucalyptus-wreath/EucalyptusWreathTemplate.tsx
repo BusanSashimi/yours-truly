@@ -23,7 +23,7 @@ import { Wreath } from "../sections/Wreath";
 import { ClosingPhotos } from "../sections/ClosingPhotos";
 
 /**
- * Template "eucalyptus-wreath" — a warm, botanical mood after Salon de Letter's
+ * Template "eucalyptus-wreath" — a warm, botanical mood after Yours Truly's
  * eucalyptus design: a textured ivory ground, soft serif type in warm brown
  * ink, and a watercolor eucalyptus wreath that frames the couple's names at the
  * top (no opening photo). The signature eucalyptus green carries the section

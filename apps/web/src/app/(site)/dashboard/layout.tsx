@@ -28,7 +28,7 @@ export default function DashboardLayout({
     <div className={styles.shell}>
       <header className={styles.topbar}>
         <Link href="/dashboard" className={styles.wordmark}>
-          Salon de Letter
+          Yours Truly
         </Link>
         <div className={styles.account}>
           <span className={styles.accountName}>{session.user.name}</span>

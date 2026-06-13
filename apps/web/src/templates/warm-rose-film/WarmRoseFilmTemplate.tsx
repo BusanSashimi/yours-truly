@@ -23,7 +23,7 @@ import { Wreath } from "../sections/Wreath";
 import { ClosingPhotos } from "../sections/ClosingPhotos";
 
 /**
- * Template "warm-rose-film" — a warm filmic mood recreating Salon de Letter:
+ * Template "warm-rose-film" — a warm filmic mood recreating Yours Truly:
  * a near-white ivory-grey ground, a high-contrast serif display, a dusty
  * terracotta/rose accent and a soft beige CTA fill. Opens on a full-bleed
  * vertical couple photo with a cursive "Happy wedding day" overlay. As with

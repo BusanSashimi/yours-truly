@@ -23,7 +23,7 @@ import { Wreath } from "../sections/Wreath";
 import { ClosingPhotos } from "../sections/ClosingPhotos";
 
 /**
- * Template "greenery-arch" — the Salon de Letter "leafy arch" mood: a near-white
+ * Template "greenery-arch" — the Yours Truly "leafy arch" mood: a near-white
  * ground, soft graphite ink, and a warm terracotta accent over a soft-peach
  * button fill. The opening is a full-bleed couple portrait beneath a white-blossom
  * and greenery arch that fades into the page (hero variant "arch"); serif display

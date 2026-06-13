@@ -23,7 +23,7 @@ import { Wreath } from "../sections/Wreath";
 import { ClosingPhotos } from "../sections/ClosingPhotos";
 
 /**
- * Template "periwinkle-story" — recreates Salon de Letter's mood: a near-white
+ * Template "periwinkle-story" — recreates Yours Truly's mood: a near-white
  * #FAFAFA ground, a serif display paired with a clean Korean sans body, and a
  * single soft periwinkle-blue accent (#6E8AB3) carried through section titles,
  * solid buttons and the countdown chips. Opens on a full-bleed photo with no

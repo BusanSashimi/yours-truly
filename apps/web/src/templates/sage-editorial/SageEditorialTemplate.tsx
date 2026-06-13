@@ -23,7 +23,7 @@ import { Wreath } from "../sections/Wreath";
 import { ClosingPhotos } from "../sections/ClosingPhotos";
 
 /**
- * Template "sage-editorial" — recreates the Salon de Letter mood: a crisp white
+ * Template "sage-editorial" — recreates the Yours Truly mood: a crisp white
  * editorial ground, a single deep sage/forest-green accent over a near-black
  * green-undertoned ink, clean sans body with a serif-forward heading feel. The
  * opening is a full-bleed couple photo with the two names set vertically along

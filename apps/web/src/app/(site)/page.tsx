@@ -15,17 +15,17 @@ export default function Home() {
             />
           </svg>
         </button>
-        <span className={styles.wordmark}>Salon de Letter</span>
+        <span className={styles.wordmark}>Yours Truly</span>
       </header>
 
       <main className={styles.main}>
         <div
           className={styles.hero}
           role="img"
-          aria-label="Salon de Letter letterpress card"
+          aria-label="Yours Truly letterpress card"
         >
           <div className={styles.heroCard}>
-            <span className={styles.heroCardTitle}>Salon de Letter</span>
+            <span className={styles.heroCardTitle}>Yours Truly</span>
             <span className={styles.heroCardRule} />
             <span className={styles.heroCardSub}>Maison de Lettre</span>
           </div>
@@ -64,7 +64,7 @@ export default function Home() {
           <a href="#">Contact</a>
         </nav>
         <p className={styles.copyright}>
-          © 2024 Salon de Letter. All rights reserved.
+          © 2024 Yours Truly. All rights reserved.
         </p>
       </footer>
     </div>
