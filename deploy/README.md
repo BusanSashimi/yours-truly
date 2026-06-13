@@ -7,12 +7,17 @@ installed and how changes reach production.
 ## Pipeline
 
 ```
-git push → GitHub Actions CI (.github/workflows/ci.yml)
+merge PR → main → GitHub Actions CI (.github/workflows/ci.yml)
          → yt-deploy.timer on the box (every 5 min, as ytapp)
          → yt-deploy.sh: fetch origin/main → no-op if SHA unchanged
            → refuse unless CI is green for that SHA
            → build → migrate → restart yt-api/yt-web → smoke check → record SHA
 ```
+
+`main` is branch-protected: changes land via pull request (the `ci` check must
+pass; no approvals required). Direct pushes are blocked for non-admins, so
+advancing the deploy means merging a PR. Admins keep an override for emergency
+hotfixes — toggle `enforce_admins` on if you want that closed too.
 
 Pull-based on purpose: the box holds **no** GitHub credentials, no runner, and
 needs no inbound access for deploys — it anonymously polls a public repo over
@@ -52,9 +57,10 @@ journalctl -u yt-deploy.service -n 50       # deploy logs
 
 ## Rollback
 
-- **code:** `git revert <bad-sha> && git push` — CI runs, the box deploys the
-  revert within ~5 minutes. Do NOT `git reset` the deploy clone by hand; the
-  next timer tick resets it to origin/main anyway.
+- **code:** `git revert <bad-sha>`, open a PR, merge once CI is green — the box
+  deploys the revert within ~5 minutes. (Admins may push the revert straight to
+  `main` in an emergency.) Do NOT `git reset` the deploy clone by hand; the next
+  timer tick resets it to origin/main anyway.
 - **freeze deploys:** `sudo systemctl stop yt-deploy.timer` (re-enable with
   `start`). Useful while investigating before rolling back.
 - **services:** `sudo systemctl stop yt-web yt-api` takes the site down hard

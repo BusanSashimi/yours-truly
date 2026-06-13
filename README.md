@@ -53,6 +53,7 @@ in a named volume; `docker compose down -v` resets it (re-run `pnpm bootstrap`).
 ## Production
 
 Single EC2 box behind nginx (TLS), web + api as systemd services, Postgres on
-RDS. Deploys are pull-based and CI-gated: push to `main`, GitHub Actions must
-go green, then the box's timer builds, migrates, restarts, and smoke-checks.
+RDS. Changes land on `main` via pull request (branch-protected; the `ci` check
+must pass). Deploys are pull-based and CI-gated: once `main` moves and GitHub
+Actions is green, the box's timer builds, migrates, restarts, and smoke-checks.
 Details and runbooks: `deploy/README.md` and `docs/architecture.md`.
