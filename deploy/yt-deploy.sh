@@ -13,7 +13,7 @@
 # symlink the way static files can). Rollback is therefore git-based — revert on
 # origin/main and let the pipeline ship it (a local reset would be undone by the
 # next timer tick):
-#   git revert <bad-sha> && git push   # then CI runs and this script deploys it
+#   git revert <bad-sha>, then merge the revert PR   # CI runs, this script deploys it
 set -Euo pipefail
 
 REPO=/opt/yours-truly
