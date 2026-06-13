@@ -112,9 +112,22 @@ export const slugSchema = z
  * leniently-parsed bag of renderer inputs, so no schema migration is needed
  * and documents predating templates keep rendering via the default.
  */
-export const INVITATION_TEMPLATE_IDS = ["classic", "modern", "romantic", "minimal"] as const;
+export const INVITATION_TEMPLATE_IDS = [
+  "ivory-editorial",
+  "periwinkle-story",
+  "warm-rose-film",
+  "save-the-date-editorial",
+  "cobalt-italic-ivory",
+  "greenery-arch",
+  "terracotta-serif",
+  "letter-seal",
+  "eucalyptus-wreath",
+  "sage-editorial",
+  "sage-storybook",
+  "mocha-editorial",
+] as const;
 export type InvitationTemplateId = (typeof INVITATION_TEMPLATE_IDS)[number];
-export const DEFAULT_INVITATION_TEMPLATE_ID: InvitationTemplateId = "classic";
+export const DEFAULT_INVITATION_TEMPLATE_ID: InvitationTemplateId = "ivory-editorial";
 
 /** Missing/unknown template values resolve to the default, never an error. */
 export function resolveInvitationTemplateId(value: unknown): InvitationTemplateId {
