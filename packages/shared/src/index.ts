@@ -190,6 +190,138 @@ export type InvitationListResponse = z.infer<typeof invitationListResponseSchema
 export const ASSET_KEY_REGEX =
   /^i\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
 
+/**
+ * Guest-uploaded media (게스트스냅) lives under a separate `g/<invitationId>/`
+ * prefix, distinct from the couple's own `i/` assets: guest uploads are
+ * dynamic, listed via an API endpoint, and never written into the design doc.
+ */
+export const GUEST_ASSET_KEY_REGEX =
+  /^g\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
+
+/** A couple's own asset key (used for hero, gallery, profile, timeline photos). */
+const assetKey = z.string().regex(ASSET_KEY_REGEX);
+
+// --- Rich design-doc sub-schemas (all leaves optional; whole sub-objects drop
+// via the top-level `.catch(undefined)` if malformed, so one bad value never
+// blanks the rest of the page). ---
+
+/** One side of the couple, for profile cards (신랑/신부 소개). */
+export const personProfileSchema = z.object({
+  photoKey: assetKey.optional(),
+  /** Free text — "1990" or "1990년생 서울". */
+  birth: z.string().optional(),
+  region: z.string().optional(),
+  mbti: z.string().optional(),
+  /** Short role/tag line (e.g. "다정한 사랑꾼"). */
+  role: z.string().optional(),
+  traits: z.array(z.string()).optional(),
+  bio: z.string().optional(),
+});
+
+export const profilesSchema = z.object({
+  groom: personProfileSchema.optional(),
+  bride: personProfileSchema.optional(),
+});
+
+/** A parent in the 혼주 line; `deceased` renders the 故 marker. */
+export const parentSchema = z.object({
+  name: z.string().optional(),
+  deceased: z.boolean().optional(),
+  phone: z.string().optional(),
+});
+
+export const parentsSchema = z.object({
+  groomFather: parentSchema.optional(),
+  groomMother: parentSchema.optional(),
+  brideFather: parentSchema.optional(),
+  brideMother: parentSchema.optional(),
+});
+
+/** A labelled phone contact (연락처): label like "신랑", "신랑 어머니". */
+export const contactSchema = z.object({
+  label: z.string(),
+  name: z.string().optional(),
+  phone: z.string(),
+});
+
+/** A milestone on the relationship timeline (우리의 시간 / 히스토리). */
+export const timelineEntrySchema = z.object({
+  date: z.string().optional(),
+  label: z.string().optional(),
+  text: z.string().optional(),
+  imageKey: assetKey.optional(),
+});
+
+/** A wedding-interview question (웨딩 인터뷰), with per-person answers. */
+export const interviewEntrySchema = z.object({
+  question: z.string(),
+  groomAnswer: z.string().optional(),
+  brideAnswer: z.string().optional(),
+});
+
+/** Map + navigation deep links for the venue (오시는 길). */
+export const mapSchema = z.object({
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+  placeId: z.string().optional(),
+  naverUrl: z.string().url().optional(),
+  kakaoUrl: z.string().url().optional(),
+  tmapUrl: z.string().url().optional(),
+});
+
+/** Free-text transport directions (교통편 안내). */
+export const transitSchema = z.object({
+  bus: z.string().optional(),
+  subway: z.string().optional(),
+  car: z.string().optional(),
+  parking: z.string().optional(),
+  shuttle: z.string().optional(),
+});
+
+/** Reception/after-party block (피로연 안내), often a separate place/time. */
+export const receptionSchema = z.object({
+  dateTime: z.string().optional(),
+  venue: z.string().optional(),
+  address: z.string().optional(),
+  note: z.string().optional(),
+});
+
+/** A gift/account entry (마음 전하실 곳 / 계좌). */
+export const accountSchema = z.object({
+  side: z.enum(["groom", "bride"]).optional(),
+  relation: z.string().optional(),
+  bank: z.string().optional(),
+  number: z.string().optional(),
+  holder: z.string().optional(),
+  kakaoPayUrl: z.string().url().optional(),
+});
+
+/** A single tabbed info panel (포토부스 / 주차안내 / 답례품). */
+export const infoTabSchema = z.object({
+  text: z.string().optional(),
+  imageKey: assetKey.optional(),
+});
+
+export const infoTabsSchema = z.object({
+  photobooth: infoTabSchema.optional(),
+  parking: infoTabSchema.optional(),
+  favor: infoTabSchema.optional(),
+});
+
+/** Guest photo-upload settings (게스트스냅); the media itself lives in a table. */
+export const guestUploadSettingsSchema = z.object({
+  enabled: z.boolean().optional(),
+  /** Upload opens at this instant; before it, the section shows a countdown. */
+  openDate: z.string().datetime({ offset: true }).optional(),
+  prompt: z.string().optional(),
+});
+
+/** Decorative epigraph/quote (e.g. a poem excerpt) shown near the top. */
+export const quoteSchema = z.object({
+  text: z.string().optional(),
+  source: z.string().optional(),
+});
+
 // Every field is `.optional().catch(undefined)` rather than the object being
 // `.partial()`: leniency must be per-field. With a plain partial object, ONE
 // invalid stored value (a non-string template, an offset-less legacy date, a
@@ -219,6 +351,47 @@ export const invitationDesignFieldsSchema = z.object({
    * config, not a data migration.
    */
   heroImageKey: z.string().regex(ASSET_KEY_REGEX).optional().catch(undefined),
+
+  // --- Rich sections (full-parity designs). Each is independently lenient. ---
+  /** Decorative epigraph/quote near the top. */
+  quote: quoteSchema.optional().catch(undefined),
+  /** Photo gallery (갤러리). */
+  galleryImageKeys: z.array(assetKey).optional().catch(undefined),
+  /** Full-bleed closing photo(s) behind the farewell message. */
+  closingImageKeys: z.array(assetKey).optional().catch(undefined),
+  /** Couple profile cards (신랑/신부 소개). */
+  profiles: profilesSchema.optional().catch(undefined),
+  /** 혼주 line (parents, with 故 markers). */
+  parents: parentsSchema.optional().catch(undefined),
+  /** Phone contacts (연락처) for the 혼주에게 연락하기 sheet. */
+  contacts: z.array(contactSchema).optional().catch(undefined),
+  /** Relationship timeline (우리의 시간 / 히스토리). */
+  timeline: z.array(timelineEntrySchema).optional().catch(undefined),
+  /** Anchor date for the 함께한 시간 elapsed counter (ISO; distinct from dateTime). */
+  relationshipStartDate: z.string().datetime({ offset: true }).optional().catch(undefined),
+  /** Wedding interview Q&A (웨딩 인터뷰). */
+  interview: z.array(interviewEntrySchema).optional().catch(undefined),
+  /** Venue map + nav deep links (오시는 길). */
+  map: mapSchema.optional().catch(undefined),
+  /** Transport directions (교통편 안내). */
+  transit: transitSchema.optional().catch(undefined),
+  /** Reception / after-party block (피로연 안내). */
+  reception: receptionSchema.optional().catch(undefined),
+  /** Gift/account info (마음 전하실 곳 / 계좌). */
+  accounts: z.array(accountSchema).optional().catch(undefined),
+  /** Tabbed extras (포토부스 / 주차안내 / 답례품). */
+  tabs: infoTabsSchema.optional().catch(undefined),
+  /** External wreath-gift link (축하화환 보내기). */
+  wreathUrl: z.string().url().optional().catch(undefined),
+  /** Guest photo-upload feature settings (게스트스냅). */
+  guestUpload: guestUploadSettingsSchema.optional().catch(undefined),
+  /** Toggle the RSVP section (참석 여부 전달). */
+  rsvpEnabled: z.boolean().optional().catch(undefined),
+  /** Toggle the guestbook section (방명록). */
+  guestbookEnabled: z.boolean().optional().catch(undefined),
+  /** Section ids the couple has hidden, and an optional custom order. */
+  hiddenSections: z.array(z.string()).optional().catch(undefined),
+  sectionOrder: z.array(z.string()).optional().catch(undefined),
 });
 export type InvitationDesignFields = z.infer<typeof invitationDesignFieldsSchema>;
 
@@ -246,3 +419,122 @@ export const createUploadResponseSchema = z.object({
   key: z.string(),
 });
 export type CreateUploadResponse = z.infer<typeof createUploadResponseSchema>;
+
+// ============================================================================
+// Dynamic guest-facing features (own tables, public-write endpoints).
+// Guests submit without an account, so inputs are tightly bounded; owner-only
+// reads/moderation reuse the session auth on the API side.
+// ============================================================================
+
+/** RSVP — 참석 여부 전달. */
+export const RSVP_ATTENDANCE = ["yes", "no"] as const;
+export const RSVP_SIDE = ["groom", "bride"] as const;
+export const RSVP_MEAL = ["yes", "no", "undecided"] as const;
+export const rsvpAttendanceSchema = z.enum(RSVP_ATTENDANCE);
+export const rsvpSideSchema = z.enum(RSVP_SIDE);
+
+/** POST /api/invitations/:id/rsvp (public). */
+export const createRsvpInputSchema = z.object({
+  name: z.string().trim().min(1).max(40),
+  attendance: rsvpAttendanceSchema,
+  side: rsvpSideSchema.optional(),
+  headcount: z.number().int().min(1).max(50).optional(),
+  meal: z.enum(RSVP_MEAL).optional(),
+  phone: z.string().trim().max(20).optional(),
+  message: z.string().trim().max(500).optional(),
+});
+export type CreateRsvpInput = z.infer<typeof createRsvpInputSchema>;
+
+/** A stored RSVP as returned to the owner (GET, auth required). */
+export const rsvpEntrySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  attendance: rsvpAttendanceSchema,
+  side: rsvpSideSchema.nullable(),
+  headcount: z.number().int().nullable(),
+  meal: z.enum(RSVP_MEAL).nullable(),
+  phone: z.string().nullable(),
+  message: z.string().nullable(),
+  createdAt: z.string().datetime(),
+});
+export type RsvpEntry = z.infer<typeof rsvpEntrySchema>;
+
+export const rsvpListResponseSchema = z.object({
+  responses: z.array(rsvpEntrySchema),
+  counts: z.object({
+    attending: z.number().int(),
+    declined: z.number().int(),
+    guests: z.number().int(),
+  }),
+});
+export type RsvpListResponse = z.infer<typeof rsvpListResponseSchema>;
+
+/** Guestbook — 방명록. Public read + write; optional 4-digit PIN for self-delete. */
+export const guestbookPinSchema = z.string().regex(/^\d{4}$/, "PIN은 숫자 4자리입니다");
+
+/** POST /api/invitations/:id/guestbook (public). */
+export const createGuestbookInputSchema = z.object({
+  name: z.string().trim().min(1).max(40),
+  message: z.string().trim().min(1).max(1000),
+  /** Optional PIN that lets the author delete their own entry later. */
+  pin: guestbookPinSchema.optional(),
+});
+export type CreateGuestbookInput = z.infer<typeof createGuestbookInputSchema>;
+
+/** A guestbook entry as shown publicly (PIN/hash never serialized). */
+export const guestbookEntrySchema = z.object({
+  id: z.string().uuid(),
+  name: z.string(),
+  message: z.string(),
+  createdAt: z.string().datetime(),
+});
+export type GuestbookEntry = z.infer<typeof guestbookEntrySchema>;
+
+export const guestbookListResponseSchema = z.object({
+  entries: z.array(guestbookEntrySchema),
+  total: z.number().int(),
+});
+export type GuestbookListResponse = z.infer<typeof guestbookListResponseSchema>;
+
+/** DELETE /api/invitations/:id/guestbook/:entryId — author self-delete with PIN. */
+export const deleteGuestbookInputSchema = z.object({ pin: guestbookPinSchema });
+export type DeleteGuestbookInput = z.infer<typeof deleteGuestbookInputSchema>;
+
+/** Guest media upload — 게스트스냅. Public, gated by guestUpload.openDate. */
+export const GUEST_UPLOAD_CONTENT_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const GUEST_UPLOAD_MAX_BYTES = 15 * 1024 * 1024;
+
+/** POST /api/invitations/:id/guest-uploads (public, presign). */
+export const createGuestUploadInputSchema = z.object({
+  uploaderName: z.string().trim().max(40).optional(),
+  contentType: z.enum(GUEST_UPLOAD_CONTENT_TYPES),
+  size: z.number().int().positive().max(GUEST_UPLOAD_MAX_BYTES, "파일은 15MB 이하여야 합니다"),
+});
+export type CreateGuestUploadInput = z.infer<typeof createGuestUploadInputSchema>;
+
+export const createGuestUploadResponseSchema = z.object({
+  uploadUrl: z.string().url(),
+  /** Guest-asset key (g/<invitationId>/<uuid>.<ext>); confirm after the PUT. */
+  key: z.string(),
+});
+export type CreateGuestUploadResponse = z.infer<typeof createGuestUploadResponseSchema>;
+
+/** POST .../guest-uploads/confirm — record a completed upload. */
+export const confirmGuestUploadInputSchema = z.object({
+  key: z.string().regex(GUEST_ASSET_KEY_REGEX),
+  uploaderName: z.string().trim().max(40).optional(),
+});
+export type ConfirmGuestUploadInput = z.infer<typeof confirmGuestUploadInputSchema>;
+
+export const guestUploadEntrySchema = z.object({
+  id: z.string().uuid(),
+  key: z.string(),
+  uploaderName: z.string().nullable(),
+  createdAt: z.string().datetime(),
+});
+export type GuestUploadEntry = z.infer<typeof guestUploadEntrySchema>;
+
+export const guestUploadListResponseSchema = z.object({
+  uploads: z.array(guestUploadEntrySchema),
+});
+export type GuestUploadListResponse = z.infer<typeof guestUploadListResponseSchema>;

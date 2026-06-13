@@ -16,7 +16,7 @@
     "dev": "tsc -p tsconfig.json --watch",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "echo \"(no lint configured for shared)\"",
-    "test": "node --import tsx --test src/slug.test.ts src/template.test.ts"
+    "test": "node --import tsx --test src/slug.test.ts src/template.test.ts src/design.test.ts"
   },
   "dependencies": {
     "zod": "^3.23.8"
