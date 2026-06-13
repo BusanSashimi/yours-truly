@@ -1,5 +1,6 @@
 import {
   apiErrorSchema,
+  createGuestMessagePresignResponseSchema,
   createGuestUploadResponseSchema,
   createUploadResponseSchema,
   guestUploadEntrySchema,
@@ -10,6 +11,9 @@ import {
   invitationResponseSchema,
   rsvpListResponseSchema,
   type ConfirmGuestUploadInput,
+  type CreateGuestMessageInput,
+  type CreateGuestMessagePresignInput,
+  type CreateGuestMessagePresignResponse,
   type CreateGuestUploadInput,
   type CreateGuestUploadResponse,
   type CreateGuestbookInput,
@@ -174,4 +178,29 @@ export async function getGuestUploads(invitationId: string): Promise<GuestUpload
 
 export async function deleteGuestUpload(invitationId: string, uploadId: string): Promise<void> {
   await request(`/api/invitations/${invitationId}/guest-uploads/${uploadId}`, { method: "DELETE" });
+}
+
+// --- Private guest messages (QR 메시지·사진): public submit only ---
+// Photos PUT to a presigned URL under the non-public `m/` prefix, then the
+// message (with the collected keys) is created in one call.
+
+export async function presignGuestMessageUpload(
+  invitationId: string,
+  input: CreateGuestMessagePresignInput,
+): Promise<CreateGuestMessagePresignResponse> {
+  const body = await request(`/api/invitations/${invitationId}/messages/presign`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
+  return createGuestMessagePresignResponseSchema.parse(body);
+}
+
+export async function createGuestMessage(
+  invitationId: string,
+  input: CreateGuestMessageInput,
+): Promise<void> {
+  await request(`/api/invitations/${invitationId}/messages`, {
+    method: "POST",
+    body: JSON.stringify(input),
+  });
 }
