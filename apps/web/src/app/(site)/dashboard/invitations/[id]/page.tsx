@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { use, useEffect, useState, type FormEvent } from "react";
+import { use, useEffect, useState, type FormEvent, type ReactNode } from "react";
 import {
   DEFAULT_INVITATION_TEMPLATE_ID,
   invitationDesignFieldsSchema,
@@ -11,51 +11,50 @@ import {
   type InvitationDesignFields,
   type InvitationTemplateId,
 } from "@yours-truly/shared";
-import {
-  ApiRequestError,
-  createUpload,
-  deleteInvitation,
-  getInvitation,
-  updateInvitation,
-} from "@/lib/api";
+import { ApiRequestError, deleteInvitation, getInvitation, updateInvitation } from "@/lib/api";
 import { assetUrl, isRenderableAssetKey } from "@/lib/assets";
-import { reencodeToJpeg } from "@/lib/image-processing";
+import { uploadInvitationImage } from "@/lib/upload";
 import { TemplatePicker } from "../../template-picker";
+import { ContactsPanel } from "./panels/ContactsPanel";
+import { GalleryPanel } from "./panels/GalleryPanel";
+import { ProfilesPanel } from "./panels/ProfilesPanel";
+import { ParentsPanel } from "./panels/ParentsPanel";
+import { TimelinePanel } from "./panels/TimelinePanel";
+import { InterviewPanel } from "./panels/InterviewPanel";
+import { MapPanel } from "./panels/MapPanel";
+import { TransitPanel } from "./panels/TransitPanel";
+import { ReceptionPanel } from "./panels/ReceptionPanel";
+import { AccountsPanel } from "./panels/AccountsPanel";
+import { InfoTabsPanel } from "./panels/InfoTabsPanel";
+import { QuotePanel } from "./panels/QuotePanel";
+import { ManagementPanel } from "./panels/ManagementPanel";
 import styles from "../../dashboard.module.scss";
 
-// The ceremony time is always entered and shown as Korean wall-clock time: the
-// product is Korean-market and the guest page renders pinned to Asia/Seoul (see
-// templates/format.ts). So the datetime-local picker is interpreted against a
-// fixed +09:00 — NOT the editor's browser timezone, which would otherwise shift
-// the stored instant when a couple edits from abroad. KST has no DST in the
-// modern era, so a constant offset is exact for any wedding date.
+// The ceremony time is always Korean wall-clock (the guest page renders pinned
+// to Asia/Seoul); convert against a fixed +09:00, not the browser timezone.
 const KST_OFFSET_MS = 9 * 60 * 60 * 1000;
 
-/** datetime-local input value (KST wall time) for an ISO instant. */
 function isoToLocalInput(iso: string | undefined): string {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "";
-  // Shift the instant into KST, then read UTC fields so the picker shows
-  // Korean wall time regardless of where the editor is.
   const kst = new Date(d.getTime() + KST_OFFSET_MS);
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${kst.getUTCFullYear()}-${pad(kst.getUTCMonth() + 1)}-${pad(kst.getUTCDate())}T${pad(kst.getUTCHours())}:${pad(kst.getUTCMinutes())}`;
 }
 
-/** ISO instant for a datetime-local value read as KST wall time. */
 function localInputToIso(value: string): string | undefined {
   const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(value);
   if (!m) return undefined;
   const [, year, month, day, hour, minute] = m;
-  // These components are KST wall time; the UTC instant is 9h earlier.
   return new Date(
     Date.UTC(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute)) -
       KST_OFFSET_MS,
   ).toISOString();
 }
 
-const FIELD_KEYS = [
+/** Basic design keys edited by the top form (rebuilt on save). */
+const BASIC_KEYS = [
   "template",
   "groomName",
   "brideName",
@@ -66,11 +65,42 @@ const FIELD_KEYS = [
   "heroImageKey",
 ] as const;
 
-export default function InvitationEditorPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+/** Rich design keys edited by the panels / features block. */
+const RICH_KEYS = [
+  "quote",
+  "galleryImageKeys",
+  "closingImageKeys",
+  "profiles",
+  "parents",
+  "contacts",
+  "timeline",
+  "relationshipStartDate",
+  "interview",
+  "map",
+  "transit",
+  "reception",
+  "accounts",
+  "tabs",
+  "wreathUrl",
+  "guestUpload",
+  "rsvpEnabled",
+  "guestbookEnabled",
+] as const;
+
+/** A collapsible editor section. */
+function Panel({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
+  return (
+    <details className={styles.panel}>
+      <summary className={styles.panelSummary}>
+        {title}
+        {hint && <span className={styles.panelHint}>{hint}</span>}
+      </summary>
+      <div className={styles.panelBody}>{children}</div>
+    </details>
+  );
+}
+
+export default function InvitationEditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
 
@@ -86,6 +116,7 @@ export default function InvitationEditorPage({
     message: "",
     heroImageKey: "",
   });
+  const [rich, setRich] = useState<Partial<InvitationDesignFields>>({});
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -107,10 +138,15 @@ export default function InvitationEditorPage({
           venueName: fields.venueName ?? "",
           venueAddress: fields.venueAddress ?? "",
           message: fields.message ?? "",
-          heroImageKey: isRenderableAssetKey(fields.heroImageKey, inv.id)
-            ? fields.heroImageKey
-            : "",
+          heroImageKey: isRenderableAssetKey(fields.heroImageKey, inv.id) ? fields.heroImageKey : "",
         });
+        const initialRich: Partial<InvitationDesignFields> = {};
+        for (const key of RICH_KEYS) {
+          if (fields[key] !== undefined) {
+            (initialRich as Record<string, unknown>)[key] = fields[key];
+          }
+        }
+        setRich(initialRich);
       })
       .catch((e: unknown) =>
         setLoadError(
@@ -128,10 +164,28 @@ export default function InvitationEditorPage({
     setNotice(null);
   }
 
-  /** Known fields are rebuilt from the form; unknown design keys survive. */
+  function setRichKey<K extends keyof InvitationDesignFields>(
+    key: K,
+    value: InvitationDesignFields[K] | undefined,
+  ) {
+    setRich((prev) => {
+      const next = { ...prev };
+      const empty =
+        value === undefined ||
+        value === null ||
+        value === "" ||
+        (Array.isArray(value) && value.length === 0);
+      if (empty) delete next[key];
+      else next[key] = value;
+      return next;
+    });
+    setNotice(null);
+  }
+
+  /** Known fields rebuilt from form + panels; unknown design keys survive. */
   function buildDesign(): Record<string, unknown> {
     const design: Record<string, unknown> = { ...invitation?.design };
-    for (const key of FIELD_KEYS) delete design[key];
+    for (const key of [...BASIC_KEYS, ...RICH_KEYS]) delete design[key];
     design.template = template;
     if (form.groomName.trim()) design.groomName = form.groomName.trim();
     if (form.brideName.trim()) design.brideName = form.brideName.trim();
@@ -141,7 +195,13 @@ export default function InvitationEditorPage({
     if (form.venueAddress.trim()) design.venueAddress = form.venueAddress.trim();
     if (form.message.trim()) design.message = form.message;
     if (form.heroImageKey) design.heroImageKey = form.heroImageKey;
+    for (const [key, value] of Object.entries(rich)) design[key] = value;
     return design;
+  }
+
+  async function uploadImage(file: File): Promise<string> {
+    if (!invitation) throw new Error("invitation not loaded");
+    return uploadInvitationImage(invitation.id, file);
   }
 
   async function onHeroFile(file: File | undefined) {
@@ -149,20 +209,7 @@ export default function InvitationEditorPage({
     setUploadError(null);
     setUploading(true);
     try {
-      // Re-encode client-side: bounds size for KakaoTalk previews, strips
-      // EXIF (GPS!) before the bytes reach the public bucket.
-      const blob = await reencodeToJpeg(file);
-      const { uploadUrl, key } = await createUpload({
-        invitationId: invitation.id,
-        contentType: "image/jpeg",
-        size: blob.size,
-      });
-      const put = await fetch(uploadUrl, {
-        method: "PUT",
-        body: blob,
-        headers: { "Content-Type": "image/jpeg" },
-      });
-      if (!put.ok) throw new Error(`업로드에 실패했습니다 (${put.status})`);
+      const key = await uploadInvitationImage(invitation.id, file);
       setField("heroImageKey", key);
     } catch (e) {
       setUploadError(
@@ -235,6 +282,13 @@ export default function InvitationEditorPage({
   }
   if (!invitation) return null;
 
+  const guestUpload = rich.guestUpload ?? {};
+  function updateGuestUpload(patch: Partial<NonNullable<InvitationDesignFields["guestUpload"]>>) {
+    const next = { ...guestUpload, ...patch };
+    const keep = next.enabled || next.openDate || next.prompt?.trim();
+    setRichKey("guestUpload", keep ? next : undefined);
+  }
+
   return (
     <>
       <div className={styles.editorHead}>
@@ -259,8 +313,8 @@ export default function InvitationEditorPage({
           <span className={styles.heroLabel}>디자인 템플릿</span>
           <TemplatePicker
             value={template}
-            onChange={(id) => {
-              setTemplate(id);
+            onChange={(t) => {
+              setTemplate(t);
               setNotice(null);
             }}
           />
@@ -270,18 +324,9 @@ export default function InvitationEditorPage({
           <span className={styles.heroLabel}>대표 사진</span>
           {form.heroImageKey ? (
             <div className={styles.heroPreviewWrap}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- editor
-                  preview; the guest page uses next/image */}
-              <img
-                className={styles.heroPreview}
-                src={assetUrl(form.heroImageKey)}
-                alt="대표 사진 미리보기"
-              />
-              <button
-                type="button"
-                className={styles.subtle}
-                onClick={() => setField("heroImageKey", "")}
-              >
+              {/* eslint-disable-next-line @next/next/no-img-element -- editor preview */}
+              <img className={styles.heroPreview} src={assetUrl(form.heroImageKey)} alt="대표 사진 미리보기" />
+              <button type="button" className={styles.subtle} onClick={() => setField("heroImageKey", "")}>
                 사진 제거
               </button>
             </div>
@@ -331,10 +376,7 @@ export default function InvitationEditorPage({
           </label>
           <label className={styles.field}>
             <span>주소</span>
-            <input
-              value={form.venueAddress}
-              onChange={(e) => setField("venueAddress", e.target.value)}
-            />
+            <input value={form.venueAddress} onChange={(e) => setField("venueAddress", e.target.value)} />
           </label>
         </div>
 
@@ -343,6 +385,100 @@ export default function InvitationEditorPage({
           <textarea value={form.message} onChange={(e) => setField("message", e.target.value)} />
         </label>
 
+        {/* --- rich content panels --- */}
+        <Panel title="인용구">
+          <QuotePanel value={rich.quote} onChange={(v) => setRichKey("quote", v)} />
+        </Panel>
+        <Panel title="신랑 · 신부 소개">
+          <ProfilesPanel value={rich.profiles} onChange={(v) => setRichKey("profiles", v)} upload={uploadImage} />
+        </Panel>
+        <Panel title="혼주 · 가족">
+          <ParentsPanel value={rich.parents} onChange={(v) => setRichKey("parents", v)} />
+        </Panel>
+        <Panel title="연락처">
+          <ContactsPanel value={rich.contacts} onChange={(v) => setRichKey("contacts", v)} />
+        </Panel>
+        <Panel title="갤러리">
+          <GalleryPanel value={rich.galleryImageKeys} onChange={(v) => setRichKey("galleryImageKeys", v)} upload={uploadImage} />
+        </Panel>
+        <Panel title="우리의 이야기 (타임라인)">
+          <TimelinePanel value={rich.timeline} onChange={(v) => setRichKey("timeline", v)} upload={uploadImage} />
+        </Panel>
+        <Panel title="웨딩 인터뷰">
+          <InterviewPanel value={rich.interview} onChange={(v) => setRichKey("interview", v)} />
+        </Panel>
+        <Panel title="오시는 길 (지도 링크)">
+          <MapPanel value={rich.map} onChange={(v) => setRichKey("map", v)} />
+        </Panel>
+        <Panel title="교통편 안내">
+          <TransitPanel value={rich.transit} onChange={(v) => setRichKey("transit", v)} />
+        </Panel>
+        <Panel title="피로연 안내">
+          <ReceptionPanel value={rich.reception} onChange={(v) => setRichKey("reception", v)} />
+        </Panel>
+        <Panel title="마음 전하실 곳 (계좌)">
+          <AccountsPanel value={rich.accounts} onChange={(v) => setRichKey("accounts", v)} />
+        </Panel>
+        <Panel title="포토부스 · 주차 · 답례품">
+          <InfoTabsPanel value={rich.tabs} onChange={(v) => setRichKey("tabs", v)} upload={uploadImage} />
+        </Panel>
+        <Panel title="마무리 사진">
+          <GalleryPanel value={rich.closingImageKeys} onChange={(v) => setRichKey("closingImageKeys", v)} upload={uploadImage} />
+        </Panel>
+
+        {/* --- features --- */}
+        <Panel title="기능 설정" hint="참석여부 · 방명록 · 게스트 스냅">
+          <label className={styles.toggleRow}>
+            <span>참석 여부 받기 (RSVP)</span>
+            <input
+              type="checkbox"
+              checked={rich.rsvpEnabled !== false}
+              onChange={(e) => setRichKey("rsvpEnabled", e.target.checked ? undefined : false)}
+            />
+          </label>
+          <label className={styles.toggleRow}>
+            <span>방명록 받기</span>
+            <input
+              type="checkbox"
+              checked={rich.guestbookEnabled !== false}
+              onChange={(e) => setRichKey("guestbookEnabled", e.target.checked ? undefined : false)}
+            />
+          </label>
+          <label className={styles.toggleRow}>
+            <span>게스트 스냅 (하객 사진 업로드)</span>
+            <input
+              type="checkbox"
+              checked={Boolean(guestUpload.enabled)}
+              onChange={(e) => updateGuestUpload({ enabled: e.target.checked })}
+            />
+          </label>
+          {guestUpload.enabled && (
+            <label className={styles.field}>
+              <span>업로드 시작 일시 (한국 시간, 선택)</span>
+              <input
+                type="datetime-local"
+                value={isoToLocalInput(guestUpload.openDate)}
+                onChange={(e) => updateGuestUpload({ openDate: localInputToIso(e.target.value) })}
+              />
+            </label>
+          )}
+          <label className={styles.field}>
+            <span>관계 시작일 (함께한 시간, 선택)</span>
+            <input
+              type="datetime-local"
+              value={isoToLocalInput(rich.relationshipStartDate)}
+              onChange={(e) => setRichKey("relationshipStartDate", localInputToIso(e.target.value))}
+            />
+          </label>
+          <label className={styles.field}>
+            <span>축하화환 링크 (선택)</span>
+            <input
+              value={rich.wreathUrl ?? ""}
+              onChange={(e) => setRichKey("wreathUrl", e.target.value.trim() || undefined)}
+            />
+          </label>
+        </Panel>
+
         {error && <p className={styles.error}>{error}</p>}
         {notice && <p className={styles.notice}>{notice}</p>}
 
@@ -350,12 +486,7 @@ export default function InvitationEditorPage({
           <button type="submit" className={styles.primary} disabled={saving}>
             {saving ? "저장 중…" : "저장"}
           </button>
-          <button
-            type="button"
-            className={styles.subtle}
-            onClick={toggleStatus}
-            disabled={statusPending}
-          >
+          <button type="button" className={styles.subtle} onClick={toggleStatus} disabled={statusPending}>
             {invitation.status === "published" ? "게시 중단" : "게시하기"}
           </button>
           <button type="button" className={styles.danger} onClick={onDelete}>
@@ -363,6 +494,10 @@ export default function InvitationEditorPage({
           </button>
         </div>
       </form>
+
+      <Panel title="응답 관리" hint="참석여부 · 방명록 · 사진">
+        <ManagementPanel invitationId={invitation.id} />
+      </Panel>
     </>
   );
 }
