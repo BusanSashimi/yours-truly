@@ -23,7 +23,7 @@ import { Wreath } from "../sections/Wreath";
 import { ClosingPhotos } from "../sections/ClosingPhotos";
 
 /**
- * Template "sage-storybook" — recreates the Salon de Letter mood: an off-white
+ * Template "sage-storybook" — recreates the Yours Truly mood: an off-white
  * #FAFAFA ground, a deep sage/olive accent, refined serif display type, and a
  * full-bleed vertical hero with a dusty-blush cursive line over the photo. A
  * Theme plus a composition of the shared section library; every section reads

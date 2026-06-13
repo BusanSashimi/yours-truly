@@ -23,7 +23,7 @@ import { Wreath } from "../sections/Wreath";
 import { ClosingPhotos } from "../sections/ClosingPhotos";
 
 /**
- * Template "terracotta-serif" — recreates the Salon de Letter mood: a pure-white
+ * Template "terracotta-serif" — recreates the Yours Truly mood: a pure-white
  * ground, centered high-contrast serif type, and a warm terracotta/clay accent
  * carrying every eyebrow, the calendar's selected day, and the contact buttons.
  * The opening puts both names on one centered serif line, then a single large

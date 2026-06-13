@@ -23,7 +23,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Salon de Letter",
+  title: "Yours Truly",
   description: "Crafting your timeless narrative.",
 };
 
