@@ -278,8 +278,12 @@ In the editor `apps/web/src/app/(site)/dashboard/invitations/[id]/`:
    v1; note as a fast-follow.
 3. **QR on the invitation page too** (for online guests, not just print) —
    future; trivial once `/send` exists.
-4. **Korean labels** — proposed: feature "QR 메시지·사진", inbox "받은 메시지",
-   submit heading default "신랑·신부에게 따뜻한 메시지를 남겨주세요". Confirm wording.
+4. **Korean labels — CONFIRMED 2026-06-14.** Live wording: feature toggle
+   "QR 메시지·사진 받기 (비공개)" (QR panel/title "QR 메시지·사진"); inbox
+   "받은 메시지 (비공개)"; submit heading default
+   "신랑·신부에게 따뜻한 메시지를 남겨주세요" (overridable via `guestMessages.prompt`).
+   The "(비공개)" qualifiers were added vs the original proposal to distinguish
+   this private inbox from the public 방명록 / 게스트스냅.
 5. **Per-photo captions / video** — out of scope v1.
 
 ## 7. Rough effort
