@@ -683,3 +683,38 @@ details[open] > .panelSummary::after {
   border-radius: 6px;
   border: 1px solid var(--line);
 }
+
+// Unread tracking for the received-messages inbox.
+.unreadBadge {
+  margin-left: 8px;
+  padding: 1px 8px;
+  font-size: 11px;
+  color: #fff;
+  background: var(--accent);
+  border-radius: 999px;
+}
+
+.markRead {
+  padding: 0;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.newDot {
+  margin-right: 6px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  vertical-align: middle;
+}
