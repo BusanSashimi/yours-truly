@@ -169,6 +169,7 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
           <input
             className={styles.input}
             placeholder={t("namePlaceholder")}
+            aria-label={t("namePlaceholder")}
             maxLength={40}
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -176,6 +177,7 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
           <textarea
             className={styles.input}
             placeholder={t("messagePlaceholder")}
+            aria-label={t("messagePlaceholder")}
             maxLength={1000}
             value={message}
             onChange={(e) => setMessage(e.target.value)}

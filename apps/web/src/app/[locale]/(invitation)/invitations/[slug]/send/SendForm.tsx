@@ -161,6 +161,7 @@ export function SendForm({
       <input
         className={styles.input}
         placeholder={t("namePlaceholder")}
+        aria-label={t("namePlaceholder")}
         value={senderName}
         maxLength={40}
         onChange={(e) => setSenderName(e.target.value)}
@@ -169,6 +170,7 @@ export function SendForm({
       <textarea
         className={styles.textarea}
         placeholder={t("messagePlaceholder")}
+        aria-label={t("messagePlaceholder")}
         value={message}
         maxLength={1000}
         rows={5}

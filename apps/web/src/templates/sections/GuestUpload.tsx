@@ -119,6 +119,7 @@ export function GuestUpload({
             <input
               className={styles.input}
               placeholder={t("namePlaceholder")}
+              aria-label={t("namePlaceholder")}
               value={uploaderName}
               maxLength={40}
               onChange={(e) => setUploaderName(e.target.value)}
