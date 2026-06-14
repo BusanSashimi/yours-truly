@@ -1,0 +1,211 @@
+{
+  "Common": {
+    "groom": "Groom",
+    "bride": "Bride",
+    "groomSide": "Groom's side",
+    "brideSide": "Bride's side",
+    "other": "Other"
+  },
+  "Invitation": {
+    "Greeting": {
+      "weAreMarrying": "We're getting married",
+      "invitingLovedOnes": "We invite our cherished guests"
+    },
+    "Hero": {
+      "fallbackHeading": "We're getting married"
+    },
+    "Calendar": {
+      "weekdays": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+    },
+    "Countdown": {
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "seconds": "Seconds"
+    },
+    "TogetherCounter": {
+      "title": "Time Together",
+      "years": "Years",
+      "months": "Months",
+      "days": "Days",
+      "clockAria": "Time together"
+    },
+    "MapDirections": {
+      "title": "Directions",
+      "naver": "Naver Map",
+      "kakao": "Kakao Map",
+      "tmap": "TMAP",
+      "bus": "Bus",
+      "subway": "Subway",
+      "car": "By car",
+      "parking": "Parking",
+      "shuttle": "Shuttle"
+    },
+    "ParentsContacts": {
+      "deceasedName": "The late {name}",
+      "roleSon": "'s son",
+      "roleDaughter": "'s daughter",
+      "call": "Call",
+      "callAria": "Call {label}"
+    },
+    "ProfileCards": {
+      "birth": "Born",
+      "region": "From",
+      "mbti": "MBTI",
+      "role": "A word"
+    },
+    "InfoTabs": {
+      "title": "Information",
+      "photobooth": "Photo booth",
+      "parking": "Parking",
+      "favor": "Favors"
+    },
+    "Interview": {
+      "title": "Wedding Interview"
+    },
+    "Accounts": {
+      "title": "Gift Accounts",
+      "copy": "Copy",
+      "copied": "Copied",
+      "kakaoPay": "KakaoPay"
+    },
+    "Reception": {
+      "title": "Reception"
+    },
+    "Timeline": {
+      "title": "Our Story"
+    },
+    "Wreath": {
+      "button": "Send a congratulatory wreath"
+    },
+    "Rsvp": {
+      "title": "Will You Attend?",
+      "attend": "Attending",
+      "decline": "Not attending",
+      "namePlaceholder": "Name",
+      "sidePlaceholderDefault": "Select",
+      "headcountAria": "Number of guests",
+      "messagePlaceholder": "Message (optional)",
+      "nameRequired": "Please enter your name.",
+      "thanks": "Thank you for your response.",
+      "sending": "Sending…",
+      "submit": "Send response",
+      "sendError": "Something went wrong. Please try again."
+    },
+    "GuestUpload": {
+      "title": "Guest Photos",
+      "openNotice": "You can upload photos from {date}.",
+      "namePlaceholder": "Name (optional)",
+      "uploading": "Uploading…",
+      "uploadButton": "Upload a photo",
+      "uploadError": "Upload failed.",
+      "uploadErrorStatus": "Upload failed ({status}).",
+      "loadError": "Couldn't load photos.",
+      "loading": "Loading photos…",
+      "empty": "No photos yet — be the first to share one.",
+      "photoAlt": "Photo by {name}"
+    },
+    "Guestbook": {
+      "title": "Messages",
+      "loading": "Loading…",
+      "loadError": "Couldn't load the guestbook.",
+      "retry": "Try again",
+      "empty": "No messages yet.",
+      "count": "{total, plural, one {# message} other {# messages}}",
+      "more": "Show more",
+      "namePlaceholder": "Name",
+      "messagePlaceholder": "Leave a message of congratulations",
+      "pinPlaceholder": "4-digit PIN (optional, needed to delete)",
+      "pinAria": "4-digit PIN for deletion (optional)",
+      "nameRequired": "Please enter your name.",
+      "messageRequired": "Please enter a message.",
+      "pinFormat": "Please enter a 4-digit PIN.",
+      "submitError": "Failed to post.",
+      "submit": "Post message",
+      "submitting": "Posting…",
+      "delete": "Delete",
+      "deletePrompt": "Enter the 4-digit PIN you set when posting.",
+      "pinInvalid": "The PIN must be 4 digits.",
+      "deleteError": "Failed to delete."
+    }
+  },
+  "Samples": {
+    "title": "Design Samples",
+    "subtitle": "Browse our designs and find the one you love.",
+    "back": "← All designs",
+    "thumbAlt": "{name} preview"
+  },
+  "Send": {
+    "promptFallback": "Leave a warm message for the couple",
+    "closed": "Messages aren't being accepted right now.",
+    "namePlaceholder": "Name (optional)",
+    "messagePlaceholder": "Write your message to the couple",
+    "photoLimit": "You can attach up to {max} photos.",
+    "needContent": "Please enter a message or attach a photo.",
+    "photoUploadError": "Photo upload failed ({status}).",
+    "sendError": "Something went wrong. Please try again.",
+    "doneTitle": "Your message was sent",
+    "doneText": "Thank you for your kind words.",
+    "openNotice": "Messages open on {date}.",
+    "closedNotice": "Messages aren't being accepted right now.",
+    "removePhoto": "Remove photo",
+    "addPhotos": "Add photos ({count}/{max})",
+    "sendingProgress": "Sending… ({done}/{total})",
+    "sending": "Sending…",
+    "submit": "Send"
+  },
+  "Metadata": {
+    "samplesTitle": "Design Samples · Yours Truly",
+    "samplesDescription": "Browse Yours Truly's invitation designs.",
+    "sampleNotFound": "Sample not found",
+    "sampleTitle": "{name} · Design Sample",
+    "invitationNotFound": "Invitation not found",
+    "invitationTitle": "{groom} ♥ {bride} are getting married",
+    "invitationTitleFallback": "You're invited to our wedding",
+    "invitationDescFallback": "Wedding invitation",
+    "sendTitle": "Send a message"
+  },
+  "NotFound": {
+    "title": "Invitation not found",
+    "body": "Please double-check that the address is correct."
+  },
+  "Errors": {
+    "image": {
+      "decode": "Couldn't read the image. Please use a JPEG or PNG file.",
+      "process": "Couldn't process the image.",
+      "encode": "Couldn't convert the image."
+    }
+  },
+  "Marketing": {
+    "menu": "Menu",
+    "sub": "Sign up in seconds",
+    "otherOptions": "Other login options",
+    "exploreFirst": "Explore first",
+    "footerTerms": "Terms",
+    "footerPrivacy": "Privacy",
+    "footerContact": "Contact"
+  },
+  "Auth": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "loginSubtitle": "Log in to manage your invitations.",
+    "signupSubtitle": "Create your own invitation in just a few seconds.",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "Password (8+ characters)",
+    "loggingIn": "Logging in…",
+    "signingUp": "Signing up…",
+    "signupSubmit": "Create account",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "or": "or",
+    "naverStart": "Continue with Naver",
+    "naverUnavailable": "Naver login isn't available. Please continue with email.",
+    "naverFailed": "Naver login failed. Please try again or log in with email.",
+    "invalidCredentials": "Your email or password is incorrect.",
+    "loginFailed": "Login failed.",
+    "emailExists": "That email is already registered.",
+    "signupFailed": "Sign-up failed."
+  }
+}

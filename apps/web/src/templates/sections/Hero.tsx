@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useLocale, useTranslations } from "next-intl";
 import type { InvitationDesignFields } from "@yours-truly/shared";
 import { assetUrl } from "@/lib/assets";
 import { Eyebrow } from "../theme";
@@ -17,8 +18,6 @@ type HeroProps = {
   /** Stamp a wax seal (with the numeric date) on the "letter" hero. */
   seal?: boolean;
 };
-
-const FALLBACK_HEADING = "저희 결혼합니다";
 
 /**
  * A watercolor eucalyptus sprig-wreath framing the "wreath" hero: twelve leaf
@@ -173,8 +172,12 @@ function EucalyptusWreath() {
 }
 
 /** Names joined with a hairline-spaced separator, or the fallback heading. */
-function namesOrFallback(groomName?: string, brideName?: string): string {
-  if (!groomName || !brideName) return FALLBACK_HEADING;
+function namesOrFallback(
+  groomName: string | undefined,
+  brideName: string | undefined,
+  fallback: string,
+): string {
+  if (!groomName || !brideName) return fallback;
   return `${groomName} · ${brideName}`;
 }
 
@@ -203,7 +206,9 @@ export function Hero({
   quote,
   seal,
 }: HeroProps) {
-  const names = namesOrFallback(groomName, brideName);
+  const t = useTranslations("Invitation.Hero");
+  const locale = useLocale();
+  const names = namesOrFallback(groomName, brideName, t("fallbackHeading"));
   const hasNames = Boolean(groomName && brideName);
 
   if (variant === "letter") {
@@ -215,7 +220,7 @@ export function Hero({
           {dateTime && (
             <>
               <span className={styles.rule} />
-              <p className={styles.dateLong}>{formatDate(dateTime)}</p>
+              <p className={styles.dateLong}>{formatDate(dateTime, locale)}</p>
             </>
           )}
           {seal && dateTime && <span className={styles.waxSeal}>{formatDateNumeric(dateTime)}</span>}

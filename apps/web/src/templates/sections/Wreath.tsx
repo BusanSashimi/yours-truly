@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Container } from "../theme";
 import styles from "./Wreath.module.scss";
 
@@ -7,6 +8,7 @@ import styles from "./Wreath.module.scss";
  * Renders nothing without a `wreathUrl`.
  */
 export function Wreath({ wreathUrl }: { wreathUrl?: string }) {
+  const t = useTranslations("Invitation.Wreath");
   if (!wreathUrl) return null;
   return (
     <section className={styles.section}>
@@ -33,7 +35,7 @@ export function Wreath({ wreathUrl }: { wreathUrl?: string }) {
               strokeLinecap="round"
             />
           </svg>
-          축하화환 보내기
+          {t("button")}
         </a>
       </Container>
     </section>

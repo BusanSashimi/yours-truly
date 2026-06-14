@@ -5,9 +5,9 @@ import type { InvitationDesignFields } from "@yours-truly/shared";
 // Korean-market).
 const KST = "Asia/Seoul";
 
-/** "2026년 10월 24일" — the large display date. */
-export function formatDate(iso: string): string {
-  return new Intl.DateTimeFormat("ko-KR", {
+/** "2026년 10월 24일" — the large display date, in the active locale. */
+export function formatDate(iso: string, locale: string = "ko"): string {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: "long",
     timeZone: KST,
   }).format(new Date(iso));
@@ -18,13 +18,13 @@ export function formatDate(iso: string): string {
  * by hand: a single weekday+time format renders as "(토요일) 오후 1:00" in
  * ko-KR CLDR, and the parentheses read as a glitch in a display line.
  */
-export function formatWeekdayTime(iso: string): string {
+export function formatWeekdayTime(iso: string, locale: string = "ko"): string {
   const date = new Date(iso);
-  const weekday = new Intl.DateTimeFormat("ko-KR", {
+  const weekday = new Intl.DateTimeFormat(locale, {
     weekday: "long",
     timeZone: KST,
   }).format(date);
-  const time = new Intl.DateTimeFormat("ko-KR", {
+  const time = new Intl.DateTimeFormat(locale, {
     hour: "numeric",
     minute: "numeric",
     hour12: true,

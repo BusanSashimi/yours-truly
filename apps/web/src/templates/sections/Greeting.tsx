@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Container, Eyebrow } from "../theme";
 import styles from "./Greeting.module.scss";
 
@@ -9,18 +10,19 @@ import styles from "./Greeting.module.scss";
 export function Greeting({
   message,
   eyebrow = "Invitation",
-  title,
+  titleKey,
 }: {
   message?: string;
   eyebrow?: string;
-  title?: string;
+  titleKey?: "weAreMarrying" | "invitingLovedOnes";
 }) {
-  if (!message && !title) return null;
+  const t = useTranslations("Invitation.Greeting");
+  if (!message && !titleKey) return null;
   return (
     <section className={styles.section}>
       <Container>
         <Eyebrow>{eyebrow}</Eyebrow>
-        {title && <h2 className={styles.title}>{title}</h2>}
+        {titleKey && <h2 className={styles.title}>{t(titleKey)}</h2>}
         {message && <p className={styles.message}>{message}</p>}
       </Container>
     </section>

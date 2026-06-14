@@ -1,0 +1,211 @@
+{
+  "Common": {
+    "groom": "新郎",
+    "bride": "新婦",
+    "groomSide": "新郎側",
+    "brideSide": "新婦側",
+    "other": "その他"
+  },
+  "Invitation": {
+    "Greeting": {
+      "weAreMarrying": "私たち、結婚いたします",
+      "invitingLovedOnes": "大切な皆様をご招待いたします"
+    },
+    "Hero": {
+      "fallbackHeading": "私たち、結婚いたします"
+    },
+    "Calendar": {
+      "weekdays": ["日", "月", "火", "水", "木", "金", "土"]
+    },
+    "Countdown": {
+      "days": "日",
+      "hours": "時間",
+      "minutes": "分",
+      "seconds": "秒"
+    },
+    "TogetherCounter": {
+      "title": "共に過ごした時間",
+      "years": "年",
+      "months": "ヶ月",
+      "days": "日",
+      "clockAria": "共に過ごした時間"
+    },
+    "MapDirections": {
+      "title": "アクセス",
+      "naver": "NAVERマップ",
+      "kakao": "カカオマップ",
+      "tmap": "TMAP",
+      "bus": "バス",
+      "subway": "地下鉄",
+      "car": "自家用車",
+      "parking": "駐車場",
+      "shuttle": "シャトルバス"
+    },
+    "ParentsContacts": {
+      "deceasedName": "故 {name}",
+      "roleSon": "の息子",
+      "roleDaughter": "の娘",
+      "call": "電話する",
+      "callAria": "{label}に電話する"
+    },
+    "ProfileCards": {
+      "birth": "生まれ",
+      "region": "出身",
+      "mbti": "MBTI",
+      "role": "ひとこと"
+    },
+    "InfoTabs": {
+      "title": "ご案内",
+      "photobooth": "フォトブース",
+      "parking": "駐車のご案内",
+      "favor": "引き出物"
+    },
+    "Interview": {
+      "title": "ウェディングインタビュー"
+    },
+    "Accounts": {
+      "title": "ご祝儀のご案内",
+      "copy": "コピー",
+      "copied": "コピーしました",
+      "kakaoPay": "カカオペイ"
+    },
+    "Reception": {
+      "title": "披露宴のご案内"
+    },
+    "Timeline": {
+      "title": "私たちの物語"
+    },
+    "Wreath": {
+      "button": "お祝いの花輪を贈る"
+    },
+    "Rsvp": {
+      "title": "ご出席のお返事",
+      "attend": "出席",
+      "decline": "欠席",
+      "namePlaceholder": "お名前",
+      "sidePlaceholderDefault": "区分を選択",
+      "headcountAria": "参加人数",
+      "messagePlaceholder": "メッセージ（任意）",
+      "nameRequired": "お名前をご入力ください。",
+      "thanks": "ご回答いただきありがとうございます。",
+      "sending": "送信中…",
+      "submit": "送信する",
+      "sendError": "送信に失敗しました。もう一度お試しください。"
+    },
+    "GuestUpload": {
+      "title": "ゲストスナップ",
+      "openNotice": "{date}から写真をアップロードできます。",
+      "namePlaceholder": "お名前（任意）",
+      "uploading": "アップロード中…",
+      "uploadButton": "写真をアップロード",
+      "uploadError": "アップロードに失敗しました。",
+      "uploadErrorStatus": "アップロードに失敗しました（{status}）。",
+      "loadError": "写真を読み込めませんでした。",
+      "loading": "写真を読み込み中…",
+      "empty": "まだ写真がありません。最初の一枚を投稿してください。",
+      "photoAlt": "{name}さんの写真"
+    },
+    "Guestbook": {
+      "title": "芳名録",
+      "loading": "読み込み中…",
+      "loadError": "芳名録を読み込めませんでした。",
+      "retry": "再試行",
+      "empty": "まだ投稿がありません。",
+      "count": "メッセージ {total}件",
+      "more": "もっと見る",
+      "namePlaceholder": "お名前",
+      "messagePlaceholder": "お祝いのメッセージをどうぞ",
+      "pinPlaceholder": "PIN4桁（任意・削除時に必要）",
+      "pinAria": "削除用PIN4桁（任意）",
+      "nameRequired": "お名前をご入力ください。",
+      "messageRequired": "内容をご入力ください。",
+      "pinFormat": "PINは数字4桁でご入力ください。",
+      "submitError": "投稿に失敗しました。",
+      "submit": "投稿する",
+      "submitting": "投稿中…",
+      "delete": "削除",
+      "deletePrompt": "投稿時に設定したPIN4桁をご入力ください。",
+      "pinInvalid": "PINは数字4桁です。",
+      "deleteError": "削除に失敗しました。"
+    }
+  },
+  "Samples": {
+    "title": "デザインサンプル",
+    "subtitle": "お好みのデザインを選んでご覧ください。",
+    "back": "← デザイン一覧",
+    "thumbAlt": "{name} プレビュー"
+  },
+  "Send": {
+    "promptFallback": "新郎新婦へ温かいメッセージをどうぞ",
+    "closed": "現在メッセージは受け付けていません。",
+    "namePlaceholder": "お名前（任意）",
+    "messagePlaceholder": "新郎新婦へのメッセージをどうぞ",
+    "photoLimit": "写真は最大{max}枚まで添付できます。",
+    "needContent": "メッセージを入力するか写真を添付してください。",
+    "photoUploadError": "写真のアップロードに失敗しました（{status}）。",
+    "sendError": "送信に失敗しました。もう一度お試しください。",
+    "doneTitle": "気持ちが届きました",
+    "doneText": "温かいメッセージをありがとうございます。",
+    "openNotice": "{date}からメッセージを受け付けます。",
+    "closedNotice": "現在メッセージは受け付けていません。",
+    "removePhoto": "写真を削除",
+    "addPhotos": "写真を添付（{count}/{max}）",
+    "sendingProgress": "送信中…（{done}/{total}）",
+    "sending": "送信中…",
+    "submit": "送信する"
+  },
+  "Metadata": {
+    "samplesTitle": "デザインサンプル · Yours Truly",
+    "samplesDescription": "Yours Truly の招待状デザインをご覧ください。",
+    "sampleNotFound": "サンプルが見つかりません",
+    "sampleTitle": "{name} · デザインサンプル",
+    "invitationNotFound": "招待状が見つかりません",
+    "invitationTitle": "{groom} ♥ {bride} 結婚します",
+    "invitationTitleFallback": "結婚式にご招待します",
+    "invitationDescFallback": "モバイル招待状",
+    "sendTitle": "お祝いメッセージを送る"
+  },
+  "NotFound": {
+    "title": "招待状が見つかりません",
+    "body": "アドレスが正しいかもう一度ご確認ください。"
+  },
+  "Errors": {
+    "image": {
+      "decode": "画像を読み込めません。JPEGまたはPNGファイルをご使用ください。",
+      "process": "画像を処理できませんでした。",
+      "encode": "画像を変換できませんでした。"
+    }
+  },
+  "Marketing": {
+    "menu": "メニュー",
+    "sub": "1秒で登録、かんたんログイン",
+    "otherOptions": "他の方法でログイン",
+    "exploreFirst": "まず見てみる",
+    "footerTerms": "利用規約",
+    "footerPrivacy": "プライバシー",
+    "footerContact": "お問い合わせ"
+  },
+  "Auth": {
+    "login": "ログイン",
+    "signup": "新規登録",
+    "loginSubtitle": "招待状を管理するにはログインしてください。",
+    "signupSubtitle": "数秒で自分だけの招待状を作成できます。",
+    "name": "お名前",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "passwordHint": "パスワード（8文字以上）",
+    "loggingIn": "ログイン中…",
+    "signingUp": "登録中…",
+    "signupSubmit": "登録する",
+    "noAccount": "アカウントをお持ちでない方",
+    "haveAccount": "すでにアカウントをお持ちの方",
+    "or": "または",
+    "naverStart": "Naverで始める",
+    "naverUnavailable": "Naverログインはご利用いただけません。メールで続行してください。",
+    "naverFailed": "Naverログインに失敗しました。もう一度お試しいただくか、メールでログインしてください。",
+    "invalidCredentials": "メールアドレスまたはパスワードが正しくありません。",
+    "loginFailed": "ログインに失敗しました。",
+    "emailExists": "このメールアドレスは既に登録されています。",
+    "signupFailed": "新規登録に失敗しました。"
+  }
+}

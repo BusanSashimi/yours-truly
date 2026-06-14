@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import type { InvitationDesignFields } from "@yours-truly/shared";
 import { Container, Eyebrow, SectionTitle } from "../theme";
 import styles from "./Accounts.module.scss";
@@ -10,11 +11,6 @@ type Account = Accounts[number];
 type Side = NonNullable<Account["side"]> | "other";
 
 const GROUP_ORDER: Side[] = ["groom", "bride", "other"];
-const GROUP_LABEL: Record<Side, string> = {
-  groom: "신랑측",
-  bride: "신부측",
-  other: "기타",
-};
 
 /**
  * 마음 전하실 곳 (gift accounts) — a client island. Accounts are grouped by side
@@ -23,10 +19,15 @@ const GROUP_LABEL: Record<Side, string> = {
  * variables. Renders nothing without any accounts.
  */
 export function Accounts({ accounts }: { accounts?: InvitationDesignFields["accounts"] }) {
+  const t = useTranslations("Invitation.Accounts");
+  const tc = useTranslations("Common");
+  const sideLabel = (side: Side) =>
+    side === "groom" ? tc("groomSide") : side === "bride" ? tc("brideSide") : tc("other");
+
   // Build ordered, non-empty groups once for both the panels and initial state.
   const groups = GROUP_ORDER.map((side) => ({
     side,
-    label: GROUP_LABEL[side],
+    label: sideLabel(side),
     items: (accounts ?? []).filter((a) => (a.side ?? "other") === side),
   })).filter((g) => g.items.length > 0);
 
@@ -56,7 +57,7 @@ export function Accounts({ accounts }: { accounts?: InvitationDesignFields["acco
     <section className={styles.section}>
       <Container>
         <Eyebrow>Gift</Eyebrow>
-        <SectionTitle>마음 전하실 곳</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
         <div className={styles.groups}>
           {groups.map((group) => {
             const isOpen = open === group.side;
@@ -96,7 +97,7 @@ export function Accounts({ accounts }: { accounts?: InvitationDesignFields["acco
                                 className={styles.copy}
                                 onClick={() => copyNumber(copyKey, account.number ?? "")}
                               >
-                                {copied === copyKey ? "복사됨" : "복사"}
+                                {copied === copyKey ? t("copied") : t("copy")}
                               </button>
                             )}
                             {account.kakaoPayUrl && (
@@ -106,7 +107,7 @@ export function Accounts({ accounts }: { accounts?: InvitationDesignFields["acco
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                카카오페이
+                                {t("kakaoPay")}
                               </a>
                             )}
                           </div>

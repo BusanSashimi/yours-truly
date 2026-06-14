@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import type { CreateGuestbookInput, GuestbookEntry } from "@yours-truly/shared";
 import { deleteGuestbookEntry, getGuestbook, submitGuestbook } from "@/lib/api";
 import { formatDate } from "../format";
@@ -49,18 +50,21 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
     void fetchPage(0);
   }, [fetchPage]);
 
+  const t = useTranslations("Invitation.Guestbook");
+  const locale = useLocale();
+
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (!name.trim()) {
-      setFormError("성함을 입력해 주세요.");
+      setFormError(t("nameRequired"));
       return;
     }
     if (!message.trim()) {
-      setFormError("내용을 입력해 주세요.");
+      setFormError(t("messageRequired"));
       return;
     }
     if (pin && !/^\d{4}$/.test(pin)) {
-      setFormError("PIN은 숫자 4자리로 입력해 주세요.");
+      setFormError(t("pinFormat"));
       return;
     }
     setStatus("sending");
@@ -79,17 +83,17 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
       setMessage("");
       setPin("");
     } catch (e) {
-      setFormError(e instanceof Error ? e.message : "등록에 실패했습니다.");
+      setFormError(e instanceof Error ? e.message : t("submitError"));
     } finally {
       setStatus("idle");
     }
   }
 
   async function onDelete(id: string) {
-    const entered = window.prompt("작성 시 입력한 PIN 4자리를 입력해 주세요.");
+    const entered = window.prompt(t("deletePrompt"));
     if (entered == null) return;
     if (!/^\d{4}$/.test(entered)) {
-      window.alert("PIN은 숫자 4자리입니다.");
+      window.alert(t("pinInvalid"));
       return;
     }
     try {
@@ -102,7 +106,7 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
         return next;
       });
     } catch (e) {
-      window.alert(e instanceof Error ? e.message : "삭제에 실패했습니다.");
+      window.alert(e instanceof Error ? e.message : t("deleteError"));
     }
   }
 
@@ -112,28 +116,28 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
     <section className={styles.section}>
       <Container>
         <Eyebrow>Guestbook</Eyebrow>
-        <SectionTitle>방명록</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
 
         {load === "loading" ? (
-          <p className={styles.notice}>불러오는 중…</p>
+          <p className={styles.notice}>{t("loading")}</p>
         ) : load === "error" ? (
           <div className={styles.notice}>
-            <p>방명록을 불러오지 못했습니다.</p>
+            <p>{t("loadError")}</p>
             <button type="button" className={styles.ghost} onClick={() => void fetchPage(0)}>
-              다시 시도
+              {t("retry")}
             </button>
           </div>
         ) : entries.length === 0 ? (
-          <p className={styles.notice}>아직 작성된 방명록이 없습니다.</p>
+          <p className={styles.notice}>{t("empty")}</p>
         ) : (
           <>
-            <p className={styles.count}>총 {total}개의 메시지</p>
+            <p className={styles.count}>{t("count", { total })}</p>
             <ul className={styles.list}>
               {entries.map((entry) => (
                 <li key={entry.id} className={styles.entry}>
                   <div className={styles.entryHead}>
                     <span className={styles.entryName}>{entry.name}</span>
-                    <span className={styles.entryDate}>{formatDate(entry.createdAt)}</span>
+                    <span className={styles.entryDate}>{formatDate(entry.createdAt, locale)}</span>
                   </div>
                   <p className={styles.entryMessage}>{entry.message}</p>
                   {mine.has(entry.id) && (
@@ -142,7 +146,7 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
                       className={styles.delete}
                       onClick={() => void onDelete(entry.id)}
                     >
-                      삭제
+                      {t("delete")}
                     </button>
                   )}
                 </li>
@@ -155,7 +159,7 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
                 onClick={() => void fetchPage(entries.length)}
                 disabled={load === "loadingMore"}
               >
-                {load === "loadingMore" ? "불러오는 중…" : "더보기"}
+                {load === "loadingMore" ? t("loading") : t("more")}
               </button>
             )}
           </>
@@ -164,14 +168,14 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
         <form className={styles.form} onSubmit={onSubmit}>
           <input
             className={styles.input}
-            placeholder="성함"
+            placeholder={t("namePlaceholder")}
             maxLength={40}
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <textarea
             className={styles.input}
-            placeholder="축하의 메시지를 남겨 주세요"
+            placeholder={t("messagePlaceholder")}
             maxLength={1000}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
@@ -179,15 +183,15 @@ export function Guestbook({ invitationId }: { invitationId: string }) {
           <input
             className={styles.input}
             inputMode="numeric"
-            placeholder="PIN 4자리 (선택, 삭제 시 필요)"
+            placeholder={t("pinPlaceholder")}
             maxLength={4}
             value={pin}
             onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
-            aria-label="삭제용 PIN 4자리 (선택)"
+            aria-label={t("pinAria")}
           />
           {formError && <p className={styles.error}>{formError}</p>}
           <button type="submit" className={styles.submit} disabled={status === "sending"}>
-            {status === "sending" ? "등록 중…" : "방명록 남기기"}
+            {status === "sending" ? t("submitting") : t("submit")}
           </button>
         </form>
       </Container>

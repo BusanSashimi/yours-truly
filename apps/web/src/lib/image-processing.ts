@@ -1,4 +1,19 @@
 /**
+ * Thrown when client-side image re-encoding fails. `code` lets guest-facing
+ * callers show a translated message; `message` stays human-readable for the
+ * (Korean-only) dashboard, which surfaces `e.message` directly.
+ */
+export class ImageError extends Error {
+  constructor(
+    readonly code: "decode" | "process" | "encode",
+    message: string,
+  ) {
+    super(message);
+    this.name = "ImageError";
+  }
+}
+
+/**
  * Client-side re-encode before upload. One pass buys three properties:
  * - bounded dimensions/bytes (KakaoTalk og:image scraping caps out at 5MB,
  *   and camera originals routinely exceed it),
@@ -18,7 +33,7 @@ export async function reencodeToJpeg(
   try {
     bitmap = await createImageBitmap(file);
   } catch {
-    throw new Error("이미지를 읽을 수 없습니다. JPEG/PNG 파일을 사용해 주세요.");
+    throw new ImageError("decode", "이미지를 읽을 수 없습니다. JPEG/PNG 파일을 사용해 주세요.");
   }
 
   const scale = Math.min(1, maxDimension / Math.max(bitmap.width, bitmap.height));
@@ -29,13 +44,13 @@ export async function reencodeToJpeg(
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("이미지를 처리할 수 없습니다.");
+  if (!ctx) throw new ImageError("process", "이미지를 처리할 수 없습니다.");
   ctx.drawImage(bitmap, 0, 0, width, height);
   bitmap.close();
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, "image/jpeg", quality),
   );
-  if (!blob) throw new Error("이미지를 변환하지 못했습니다.");
+  if (!blob) throw new ImageError("encode", "이미지를 변환하지 못했습니다.");
   return blob;
 }

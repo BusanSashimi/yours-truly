@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { InvitationDesignFields } from "@yours-truly/shared";
 import { assetUrl } from "@/lib/assets";
+import { useTranslations } from "next-intl";
 import { Container, Eyebrow } from "../theme";
 import styles from "./ProfileCards.module.scss";
 
@@ -20,6 +21,7 @@ function MetaLine({ label, value }: { label: string; value?: string }) {
 
 /** One side's card: portrait (optional) + name + any meta lines + traits. */
 function Card({ side, person, name }: { side: string; person?: Person; name?: string }) {
+  const tp = useTranslations("Invitation.ProfileCards");
   // Nothing to show for this side at all — drop the whole card.
   if (!person && !name) return null;
 
@@ -42,10 +44,10 @@ function Card({ side, person, name }: { side: string; person?: Person; name?: st
       {name && <h3 className={styles.name}>{name}</h3>}
       {person && (
         <div className={styles.metaList}>
-          <MetaLine label="생년" value={person.birth} />
-          <MetaLine label="지역" value={person.region} />
-          <MetaLine label="MBTI" value={person.mbti} />
-          <MetaLine label="한마디" value={person.role} />
+          <MetaLine label={tp("birth")} value={person.birth} />
+          <MetaLine label={tp("region")} value={person.region} />
+          <MetaLine label={tp("mbti")} value={person.mbti} />
+          <MetaLine label={tp("role")} value={person.role} />
         </div>
       )}
       {traits.length > 0 && (
@@ -76,6 +78,7 @@ export function ProfileCards({
   groomName?: string;
   brideName?: string;
 }) {
+  const tc = useTranslations("Common");
   const groom = profiles?.groom;
   const bride = profiles?.bride;
 
@@ -87,8 +90,8 @@ export function ProfileCards({
       <Container>
         <Eyebrow>Profile</Eyebrow>
         <div className={styles.cards}>
-          <Card side="신랑" person={groom} name={groomName} />
-          <Card side="신부" person={bride} name={brideName} />
+          <Card side={tc("groom")} person={groom} name={groomName} />
+          <Card side={tc("bride")} person={bride} name={brideName} />
         </div>
       </Container>
     </section>

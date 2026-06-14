@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { sinceParts } from "../format";
 import { Container, Eyebrow, SectionTitle } from "../theme";
 import styles from "./TogetherCounter.module.scss";
@@ -27,6 +28,8 @@ export function TogetherCounter({ startDate }: { startDate?: string }) {
     return () => clearInterval(id);
   }, [startDate]);
 
+  const t = useTranslations("Invitation.TogetherCounter");
+
   if (!startDate) return null;
 
   const parts = nowMs === null ? null : sinceParts(startDate, nowMs);
@@ -43,25 +46,25 @@ export function TogetherCounter({ startDate }: { startDate?: string }) {
     <section className={styles.section}>
       <Container>
         <Eyebrow>Since the Beginning</Eyebrow>
-        <SectionTitle>함께한 시간</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
         {parts && (
           <p className={styles.headline}>
             <span className={styles.unit}>
               <span className={styles.value}>{parts.years}</span>
-              <span className={styles.label}>년</span>
+              <span className={styles.label}>{t("years")}</span>
             </span>
             <span className={styles.unit}>
               <span className={styles.value}>{parts.months}</span>
-              <span className={styles.label}>개월</span>
+              <span className={styles.label}>{t("months")}</span>
             </span>
             <span className={styles.unit}>
               <span className={styles.value}>{parts.days}</span>
-              <span className={styles.label}>일</span>
+              <span className={styles.label}>{t("days")}</span>
             </span>
           </p>
         )}
         {clock && (
-          <p className={styles.clock} aria-label="함께한 시간">
+          <p className={styles.clock} aria-label={t("clockAria")}>
             {pad(clock.hours)}:{pad(clock.minutes)}:{pad(clock.seconds)}
           </p>
         )}
