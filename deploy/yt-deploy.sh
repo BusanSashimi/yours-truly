@@ -91,8 +91,10 @@ sudo systemctl restart yt-api yt-web
 sleep 3
 
 # Smoke-check both tiers: API directly, web through nginx over HTTPS.
+# Web: follow redirects (-L) — with localePrefix 'always', `/` 307-redirects to
+# the locale-prefixed home, so the final status (not the redirect) is what matters.
 API_CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 http://127.0.0.1:4000/api/health || echo 000)"
-WEB_CODE="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 \
+WEB_CODE="$(curl -sL -o /dev/null -w '%{http_code}' --max-time 10 \
             --resolve "$DOMAIN:443:127.0.0.1" "https://$DOMAIN/" || echo 000)"
 if [ "$API_CODE" != "200" ] || [ "$WEB_CODE" != "200" ]; then
   log "SMOKE CHECK FAILED (api $API_CODE, web $WEB_CODE); investigate (deploy NOT recorded)"
