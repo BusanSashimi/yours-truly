@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import type { InvitationDesignFields } from "@yours-truly/shared";
 import { assetUrl } from "@/lib/assets";
@@ -10,13 +11,6 @@ import styles from "./InfoTabs.module.scss";
 type Tabs = NonNullable<InvitationDesignFields["tabs"]>;
 type TabKey = keyof Tabs;
 type Panel = NonNullable<Tabs[TabKey]>;
-
-/** Guest-facing labels for each known tab key (포토부스 / 주차안내 / 답례품). */
-const TAB_LABELS: Record<TabKey, string> = {
-  photobooth: "포토부스",
-  parking: "주차안내",
-  favor: "답례품",
-};
 
 /** Fixed display order regardless of object key order. */
 const TAB_ORDER: TabKey[] = ["photobooth", "parking", "favor"];
@@ -32,6 +26,7 @@ function hasContent(panel: Panel | undefined): panel is Panel {
  * when no tab has any content. Themed entirely via CSS variables.
  */
 export function InfoTabs({ tabs }: { tabs?: InvitationDesignFields["tabs"] }) {
+  const t = useTranslations("Invitation.InfoTabs");
   const present = TAB_ORDER.filter((key) => hasContent(tabs?.[key]));
   const [active, setActive] = useState<TabKey>(present[0] ?? "photobooth");
 
@@ -45,7 +40,7 @@ export function InfoTabs({ tabs }: { tabs?: InvitationDesignFields["tabs"] }) {
     <section className={styles.section}>
       <Container>
         <Eyebrow>Information</Eyebrow>
-        <SectionTitle>안내</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
 
         {present.length > 1 && (
           <div className={styles.tabBar} role="tablist">
@@ -58,7 +53,7 @@ export function InfoTabs({ tabs }: { tabs?: InvitationDesignFields["tabs"] }) {
                 className={key === activeKey ? styles.tabOn : styles.tabOff}
                 onClick={() => setActive(key)}
               >
-                {TAB_LABELS[key]}
+                {t(key)}
               </button>
             ))}
           </div>
@@ -69,7 +64,7 @@ export function InfoTabs({ tabs }: { tabs?: InvitationDesignFields["tabs"] }) {
             <div className={styles.figure}>
               <Image
                 src={assetUrl(panel.imageKey)}
-                alt={TAB_LABELS[activeKey]}
+                alt={t(activeKey)}
                 fill
                 sizes="(max-width: 480px) 100vw, 424px"
                 className={styles.img}

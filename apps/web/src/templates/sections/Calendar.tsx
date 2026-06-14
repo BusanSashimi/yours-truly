@@ -1,8 +1,7 @@
+import { useLocale, useTranslations } from "next-intl";
 import { formatWeekdayTime, monthMatrix } from "../format";
 import { Container, Eyebrow } from "../theme";
 import styles from "./Calendar.module.scss";
-
-const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
 
 /**
  * The wedding-month calendar. A Sun-first month grid (weekday header + week
@@ -11,7 +10,10 @@ const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"];
  * derived from the date, so no client state. Renders nothing without a date.
  */
 export function Calendar({ dateTime }: { dateTime?: string }) {
+  const t = useTranslations("Invitation.Calendar");
+  const locale = useLocale();
   if (!dateTime) return null;
+  const weekdays = t.raw("weekdays") as string[];
   const { weeks, weddingDay } = monthMatrix(dateTime);
   return (
     <section className={styles.section}>
@@ -19,7 +21,7 @@ export function Calendar({ dateTime }: { dateTime?: string }) {
         <Eyebrow>Wedding Day</Eyebrow>
         <div className={styles.calendar}>
           <div className={styles.weekHeader}>
-            {WEEKDAYS.map((label, i) => (
+            {weekdays.map((label, i) => (
               <span
                 key={label}
                 className={`${styles.weekday} ${
@@ -47,7 +49,7 @@ export function Calendar({ dateTime }: { dateTime?: string }) {
             )}
           </div>
         </div>
-        <p className={styles.time}>{formatWeekdayTime(dateTime)}</p>
+        <p className={styles.time}>{formatWeekdayTime(dateTime, locale)}</p>
       </Container>
     </section>
   );

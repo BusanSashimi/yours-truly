@@ -62,7 +62,7 @@ export function MochaEditorialTemplate({ invitation, fields, heroKey }: Template
         brideName={fields.brideName}
         dateTime={fields.dateTime}
       />
-      <Greeting message={fields.message} title="저희 결혼합니다" />
+      <Greeting message={fields.message} titleKey="weAreMarrying" />
       <Quote quote={fields.quote} />
       <ProfileCards
         profiles={fields.profiles}

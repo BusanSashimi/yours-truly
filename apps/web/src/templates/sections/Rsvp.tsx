@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useTranslations } from "next-intl";
 import type { CreateRsvpInput } from "@yours-truly/shared";
 import { submitRsvp } from "@/lib/api";
 import { Container, Eyebrow, SectionTitle } from "../theme";
@@ -18,11 +19,13 @@ export function Rsvp({ invitationId }: { invitationId: string }) {
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "done">("idle");
   const [error, setError] = useState<string | null>(null);
+  const t = useTranslations("Invitation.Rsvp");
+  const tc = useTranslations("Common");
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     if (!name.trim()) {
-      setError("성함을 입력해 주세요.");
+      setError(t("nameRequired"));
       return;
     }
     setStatus("sending");
@@ -38,7 +41,7 @@ export function Rsvp({ invitationId }: { invitationId: string }) {
       await submitRsvp(invitationId, input);
       setStatus("done");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "전송에 실패했습니다.");
+      setError(e instanceof Error ? e.message : t("sendError"));
       setStatus("idle");
     }
   }
@@ -47,9 +50,9 @@ export function Rsvp({ invitationId }: { invitationId: string }) {
     <section className={styles.section}>
       <Container>
         <Eyebrow>RSVP</Eyebrow>
-        <SectionTitle>참석 여부 전달</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
         {status === "done" ? (
-          <p className={styles.thanks}>참석 여부를 전달해 주셔서 감사합니다.</p>
+          <p className={styles.thanks}>{t("thanks")}</p>
         ) : (
           <form className={styles.form} onSubmit={onSubmit}>
             <div className={styles.choice}>
@@ -58,31 +61,33 @@ export function Rsvp({ invitationId }: { invitationId: string }) {
                 className={attendance === "yes" ? styles.choiceOn : styles.choiceOff}
                 onClick={() => setAttendance("yes")}
               >
-                참석
+                {t("attend")}
               </button>
               <button
                 type="button"
                 className={attendance === "no" ? styles.choiceOn : styles.choiceOff}
                 onClick={() => setAttendance("no")}
               >
-                불참
+                {t("decline")}
               </button>
             </div>
             <input
               className={styles.input}
-              placeholder="성함"
+              placeholder={t("namePlaceholder")}
+              aria-label={t("namePlaceholder")}
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
             <div className={styles.row}>
               <select
                 className={styles.input}
+                aria-label={t("sidePlaceholderDefault")}
                 value={side}
                 onChange={(e) => setSide(e.target.value as typeof side)}
               >
-                <option value="">구분 선택</option>
-                <option value="groom">신랑측</option>
-                <option value="bride">신부측</option>
+                <option value="">{t("sidePlaceholderDefault")}</option>
+                <option value="groom">{tc("groomSide")}</option>
+                <option value="bride">{tc("brideSide")}</option>
               </select>
               <input
                 className={styles.input}
@@ -90,18 +95,19 @@ export function Rsvp({ invitationId }: { invitationId: string }) {
                 min="1"
                 value={headcount}
                 onChange={(e) => setHeadcount(e.target.value)}
-                aria-label="참석 인원"
+                aria-label={t("headcountAria")}
               />
             </div>
             <textarea
               className={styles.input}
-              placeholder="전하실 말씀 (선택)"
+              placeholder={t("messagePlaceholder")}
+              aria-label={t("messagePlaceholder")}
               value={message}
               onChange={(e) => setMessage(e.target.value)}
             />
             {error && <p className={styles.error}>{error}</p>}
             <button type="submit" className={styles.submit} disabled={status === "sending"}>
-              {status === "sending" ? "전송 중…" : "참석 여부 전달"}
+              {status === "sending" ? t("sending") : t("submit")}
             </button>
           </form>
         )}

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { type InvitationDesignFields } from "@yours-truly/shared";
 import { assetUrl } from "@/lib/assets";
+import { useTranslations } from "next-intl";
 import { Container, Eyebrow, SectionTitle } from "../theme";
 import styles from "./Timeline.module.scss";
 
@@ -16,6 +17,7 @@ export function Timeline({
 }: {
   entries?: InvitationDesignFields["timeline"];
 }) {
+  const t = useTranslations("Invitation.Timeline");
   const items = entries?.filter(
     (entry) => entry.date || entry.label || entry.text || entry.imageKey,
   );
@@ -25,7 +27,7 @@ export function Timeline({
     <section className={styles.section}>
       <Container>
         <Eyebrow>Our Story</Eyebrow>
-        <SectionTitle>우리의 이야기</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
         <ol className={styles.list}>
           {items.map((entry, index) => (
             <li key={index} className={styles.item}>

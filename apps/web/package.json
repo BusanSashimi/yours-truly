@@ -13,6 +13,7 @@
     "@yours-truly/shared": "workspace:*",
     "better-auth": "^1.6.16",
     "next": "15.5.19",
+    "next-intl": "^4.13.0",
     "qrcode.react": "^4",
     "react": "19.2.7",
     "react-dom": "19.2.7"

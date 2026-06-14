@@ -1,0 +1,211 @@
+{
+  "Common": {
+    "groom": "신랑",
+    "bride": "신부",
+    "groomSide": "신랑측",
+    "brideSide": "신부측",
+    "other": "기타"
+  },
+  "Invitation": {
+    "Greeting": {
+      "weAreMarrying": "저희 결혼합니다",
+      "invitingLovedOnes": "소중한 분들을 초대합니다"
+    },
+    "Hero": {
+      "fallbackHeading": "저희 결혼합니다"
+    },
+    "Calendar": {
+      "weekdays": ["일", "월", "화", "수", "목", "금", "토"]
+    },
+    "Countdown": {
+      "days": "일",
+      "hours": "시간",
+      "minutes": "분",
+      "seconds": "초"
+    },
+    "TogetherCounter": {
+      "title": "함께한 시간",
+      "years": "년",
+      "months": "개월",
+      "days": "일",
+      "clockAria": "함께한 시간"
+    },
+    "MapDirections": {
+      "title": "오시는 길",
+      "naver": "네이버지도",
+      "kakao": "카카오맵",
+      "tmap": "티맵",
+      "bus": "버스",
+      "subway": "지하철",
+      "car": "자차",
+      "parking": "주차",
+      "shuttle": "셔틀"
+    },
+    "ParentsContacts": {
+      "deceasedName": "故 {name}",
+      "roleSon": "의 아들",
+      "roleDaughter": "의 딸",
+      "call": "전화하기",
+      "callAria": "{label}에게 전화하기"
+    },
+    "ProfileCards": {
+      "birth": "생년",
+      "region": "지역",
+      "mbti": "MBTI",
+      "role": "한마디"
+    },
+    "InfoTabs": {
+      "title": "안내",
+      "photobooth": "포토부스",
+      "parking": "주차안내",
+      "favor": "답례품"
+    },
+    "Interview": {
+      "title": "웨딩 인터뷰"
+    },
+    "Accounts": {
+      "title": "마음 전하실 곳",
+      "copy": "복사",
+      "copied": "복사됨",
+      "kakaoPay": "카카오페이"
+    },
+    "Reception": {
+      "title": "피로연 안내"
+    },
+    "Timeline": {
+      "title": "우리의 이야기"
+    },
+    "Wreath": {
+      "button": "축하화환 보내기"
+    },
+    "Rsvp": {
+      "title": "참석 여부 전달",
+      "attend": "참석",
+      "decline": "불참",
+      "namePlaceholder": "성함",
+      "sidePlaceholderDefault": "구분 선택",
+      "headcountAria": "참석 인원",
+      "messagePlaceholder": "전하실 말씀 (선택)",
+      "nameRequired": "성함을 입력해 주세요.",
+      "thanks": "참석 여부를 전달해 주셔서 감사합니다.",
+      "sending": "전송 중…",
+      "submit": "참석 여부 전달",
+      "sendError": "전송에 실패했습니다."
+    },
+    "GuestUpload": {
+      "title": "게스트 스냅",
+      "openNotice": "{date}부터 사진을 올릴 수 있어요.",
+      "namePlaceholder": "이름 (선택)",
+      "uploading": "업로드 중…",
+      "uploadButton": "사진 올리기",
+      "uploadError": "업로드에 실패했습니다.",
+      "uploadErrorStatus": "업로드에 실패했습니다 ({status}).",
+      "loadError": "사진을 불러오지 못했어요.",
+      "loading": "사진을 불러오는 중…",
+      "empty": "아직 올라온 사진이 없어요. 첫 번째 사진을 남겨주세요.",
+      "photoAlt": "{name}님의 사진"
+    },
+    "Guestbook": {
+      "title": "방명록",
+      "loading": "불러오는 중…",
+      "loadError": "방명록을 불러오지 못했습니다.",
+      "retry": "다시 시도",
+      "empty": "아직 작성된 방명록이 없습니다.",
+      "count": "총 {total}개의 메시지",
+      "more": "더보기",
+      "namePlaceholder": "성함",
+      "messagePlaceholder": "축하의 메시지를 남겨 주세요",
+      "pinPlaceholder": "PIN 4자리 (선택, 삭제 시 필요)",
+      "pinAria": "삭제용 PIN 4자리 (선택)",
+      "nameRequired": "성함을 입력해 주세요.",
+      "messageRequired": "내용을 입력해 주세요.",
+      "pinFormat": "PIN은 숫자 4자리로 입력해 주세요.",
+      "submitError": "등록에 실패했습니다.",
+      "submit": "방명록 남기기",
+      "submitting": "등록 중…",
+      "delete": "삭제",
+      "deletePrompt": "작성 시 입력한 PIN 4자리를 입력해 주세요.",
+      "pinInvalid": "PIN은 숫자 4자리입니다.",
+      "deleteError": "삭제에 실패했습니다."
+    }
+  },
+  "Samples": {
+    "title": "디자인 샘플",
+    "subtitle": "마음에 드는 디자인을 골라 미리 둘러보세요.",
+    "back": "← 디자인 목록",
+    "thumbAlt": "{name} 디자인 미리보기"
+  },
+  "Send": {
+    "promptFallback": "신랑·신부에게 따뜻한 메시지를 남겨주세요",
+    "closed": "지금은 메시지를 받지 않습니다.",
+    "namePlaceholder": "이름 (선택)",
+    "messagePlaceholder": "신랑·신부에게 전하고 싶은 말을 남겨주세요",
+    "photoLimit": "사진은 최대 {max}장까지 첨부할 수 있어요.",
+    "needContent": "메시지를 입력하거나 사진을 첨부해 주세요.",
+    "photoUploadError": "사진 업로드에 실패했습니다 ({status}).",
+    "sendError": "전송에 실패했습니다.",
+    "doneTitle": "마음이 전달되었어요",
+    "doneText": "소중한 메시지 감사합니다.",
+    "openNotice": "{date}부터 메시지를 받아요.",
+    "closedNotice": "지금은 메시지를 받지 않아요.",
+    "removePhoto": "사진 삭제",
+    "addPhotos": "사진 첨부 ({count}/{max})",
+    "sendingProgress": "전송 중… ({done}/{total})",
+    "sending": "전송 중…",
+    "submit": "마음 전하기"
+  },
+  "Metadata": {
+    "samplesTitle": "디자인 샘플 · Yours Truly",
+    "samplesDescription": "Yours Truly의 청첩장 디자인을 미리 둘러보세요.",
+    "sampleNotFound": "샘플을 찾을 수 없습니다",
+    "sampleTitle": "{name} · 디자인 샘플",
+    "invitationNotFound": "청첩장을 찾을 수 없습니다",
+    "invitationTitle": "{groom} ♥ {bride} 결혼합니다",
+    "invitationTitleFallback": "저희 결혼식에 초대합니다",
+    "invitationDescFallback": "모바일 청첩장",
+    "sendTitle": "축하 메시지 보내기"
+  },
+  "NotFound": {
+    "title": "청첩장을 찾을 수 없습니다",
+    "body": "주소가 정확한지 다시 한번 확인해 주세요."
+  },
+  "Errors": {
+    "image": {
+      "decode": "이미지를 읽을 수 없습니다. JPEG/PNG 파일을 사용해 주세요.",
+      "process": "이미지를 처리할 수 없습니다.",
+      "encode": "이미지를 변환하지 못했습니다."
+    }
+  },
+  "Marketing": {
+    "menu": "메뉴",
+    "sub": "1초 회원가입으로 간편로그인",
+    "otherOptions": "다른 방법으로 로그인",
+    "exploreFirst": "먼저 둘러보기",
+    "footerTerms": "이용약관",
+    "footerPrivacy": "개인정보처리방침",
+    "footerContact": "문의"
+  },
+  "Auth": {
+    "login": "로그인",
+    "signup": "회원가입",
+    "loginSubtitle": "내 청첩장을 관리하려면 로그인하세요.",
+    "signupSubtitle": "몇 초면 나만의 청첩장을 만들 수 있어요.",
+    "name": "이름",
+    "email": "이메일",
+    "password": "비밀번호",
+    "passwordHint": "비밀번호 (8자 이상)",
+    "loggingIn": "로그인 중…",
+    "signingUp": "가입 중…",
+    "signupSubmit": "가입하기",
+    "noAccount": "아직 계정이 없으신가요?",
+    "haveAccount": "이미 계정이 있으신가요?",
+    "or": "또는",
+    "naverStart": "네이버로 시작하기",
+    "naverUnavailable": "네이버 로그인을 사용할 수 없습니다. 이메일로 계속해 주세요.",
+    "naverFailed": "네이버 로그인에 실패했습니다. 다시 시도하거나 이메일로 로그인해 주세요.",
+    "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다.",
+    "loginFailed": "로그인에 실패했습니다.",
+    "emailExists": "이미 가입된 이메일입니다.",
+    "signupFailed": "회원가입에 실패했습니다."
+  }
+}

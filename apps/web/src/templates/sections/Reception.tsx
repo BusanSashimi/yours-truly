@@ -1,4 +1,5 @@
 import type { InvitationDesignFields } from "@yours-truly/shared";
+import { useLocale, useTranslations } from "next-intl";
 import { formatDate, formatWeekdayTime } from "../format";
 import { Container, Eyebrow, SectionTitle } from "../theme";
 import styles from "./Reception.module.scss";
@@ -10,6 +11,8 @@ import styles from "./Reception.module.scss";
  * reception has no usable data. Themed entirely via CSS variables.
  */
 export function Reception({ reception }: { reception?: InvitationDesignFields["reception"] }) {
+  const t = useTranslations("Invitation.Reception");
+  const locale = useLocale();
   if (!reception) return null;
   const { dateTime, venue, address, note } = reception;
   if (!dateTime && !venue && !address && !note) return null;
@@ -18,12 +21,12 @@ export function Reception({ reception }: { reception?: InvitationDesignFields["r
     <section className={styles.section}>
       <Container>
         <Eyebrow>Reception</Eyebrow>
-        <SectionTitle>피로연 안내</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
         <div className={styles.card}>
           {dateTime && (
             <p className={styles.date}>
-              <span className={styles.dateLine}>{formatDate(dateTime)}</span>
-              <span className={styles.timeLine}>{formatWeekdayTime(dateTime)}</span>
+              <span className={styles.dateLine}>{formatDate(dateTime, locale)}</span>
+              <span className={styles.timeLine}>{formatWeekdayTime(dateTime, locale)}</span>
             </p>
           )}
           {venue && <p className={styles.venue}>{venue}</p>}

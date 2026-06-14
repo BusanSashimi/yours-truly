@@ -1,4 +1,5 @@
 import { type InvitationDesignFields } from "@yours-truly/shared";
+import { useTranslations } from "next-intl";
 import { Container, Eyebrow, SectionTitle } from "../theme";
 import styles from "./Interview.module.scss";
 
@@ -9,6 +10,8 @@ import styles from "./Interview.module.scss";
  * nothing when there are no questions, and skips answers a couple left blank.
  */
 export function Interview({ entries }: { entries?: InvitationDesignFields["interview"] }) {
+  const t = useTranslations("Invitation.Interview");
+  const tc = useTranslations("Common");
   const items = entries?.filter((entry) => entry.question.trim());
   if (!items || items.length === 0) return null;
 
@@ -16,7 +19,7 @@ export function Interview({ entries }: { entries?: InvitationDesignFields["inter
     <section className={styles.section}>
       <Container>
         <Eyebrow>Interview</Eyebrow>
-        <SectionTitle>웨딩 인터뷰</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
         <ul className={styles.list}>
           {items.map((entry, index) => {
             const groom = entry.groomAnswer?.trim();
@@ -33,13 +36,13 @@ export function Interview({ entries }: { entries?: InvitationDesignFields["inter
                   <div className={styles.answers}>
                     {groom && (
                       <div className={styles.answer}>
-                        <span className={styles.who}>신랑</span>
+                        <span className={styles.who}>{tc("groom")}</span>
                         <p className={styles.text}>{groom}</p>
                       </div>
                     )}
                     {bride && (
                       <div className={styles.answer}>
-                        <span className={styles.who}>신부</span>
+                        <span className={styles.who}>{tc("bride")}</span>
                         <p className={styles.text}>{bride}</p>
                       </div>
                     )}

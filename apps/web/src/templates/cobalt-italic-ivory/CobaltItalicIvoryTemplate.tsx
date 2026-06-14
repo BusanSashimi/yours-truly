@@ -64,7 +64,7 @@ export function CobaltItalicIvoryTemplate({ invitation, fields, heroKey }: Templ
         dateTime={fields.dateTime}
       />
       <Quote quote={fields.quote} />
-      <Greeting message={fields.message} title="저희 결혼합니다" />
+      <Greeting message={fields.message} titleKey="weAreMarrying" />
       <ProfileCards
         profiles={fields.profiles}
         groomName={fields.groomName}

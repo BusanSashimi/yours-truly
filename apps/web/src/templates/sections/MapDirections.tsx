@@ -1,27 +1,27 @@
 import type { InvitationDesignFields } from "@yours-truly/shared";
+import { useTranslations } from "next-intl";
 import { navAppLinks } from "../format";
 import { Container, Eyebrow, SectionTitle } from "../theme";
 import styles from "./MapDirections.module.scss";
 
 /** Nav-app buttons in display order; only the ones whose link resolves render. */
-const NAV_APPS: { key: "naver" | "kakao" | "tmap"; label: string }[] = [
-  { key: "naver", label: "네이버지도" },
-  { key: "kakao", label: "카카오맵" },
-  { key: "tmap", label: "티맵" },
+const NAV_APPS: { key: "naver" | "kakao" | "tmap" }[] = [
+  { key: "naver" },
+  { key: "kakao" },
+  { key: "tmap" },
 ];
 
 /** Transit modes in display order; only the ones present in `transit` render. */
 const TRANSIT_MODES: {
   key: keyof NonNullable<InvitationDesignFields["transit"]>;
-  label: string;
   icon: string;
 }[] =
   [
-    { key: "bus", label: "버스", icon: "🚌" },
-    { key: "subway", label: "지하철", icon: "🚇" },
-    { key: "car", label: "자차", icon: "🚗" },
-    { key: "parking", label: "주차", icon: "🅿️" },
-    { key: "shuttle", label: "셔틀", icon: "🚐" },
+    { key: "bus", icon: "🚌" },
+    { key: "subway", icon: "🚇" },
+    { key: "car", icon: "🚗" },
+    { key: "parking", icon: "🅿️" },
+    { key: "shuttle", icon: "🚐" },
   ];
 
 /**
@@ -41,6 +41,7 @@ export function MapDirections({
   map?: InvitationDesignFields["map"];
   transit?: InvitationDesignFields["transit"];
 }) {
+  const t = useTranslations("Invitation.MapDirections");
   if (!venueName && !venueAddress && !map && !transit) return null;
 
   const links = navAppLinks(map, venueName, venueAddress);
@@ -56,7 +57,7 @@ export function MapDirections({
     <section className={styles.section}>
       <Container>
         <Eyebrow>Location</Eyebrow>
-        <SectionTitle>오시는 길</SectionTitle>
+        <SectionTitle>{t("title")}</SectionTitle>
 
         {(venueName || venueAddress) && (
           <div className={styles.venue}>
@@ -75,7 +76,7 @@ export function MapDirections({
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                {app.label}
+                {t(app.key)}
               </a>
             ))}
           </div>
@@ -89,7 +90,7 @@ export function MapDirections({
                   {mode.icon}
                 </span>
                 <div className={styles.transitBody}>
-                  <span className={styles.transitLabel}>{mode.label}</span>
+                  <span className={styles.transitLabel}>{t(mode.key)}</span>
                   <span className={styles.transitText}>{mode.text}</span>
                 </div>
               </li>

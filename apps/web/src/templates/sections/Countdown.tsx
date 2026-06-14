@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import { countdownParts } from "../format";
 import { Container, Eyebrow } from "../theme";
 import styles from "./Countdown.module.scss";
@@ -20,14 +21,16 @@ export function Countdown({ dateTime }: { dateTime?: string }) {
     return () => clearInterval(id);
   }, []);
 
+  const t = useTranslations("Invitation.Countdown");
+
   if (!dateTime) return null;
 
   const parts = now === null ? null : countdownParts(dateTime, now);
   const units: { label: string; value: number | null }[] = [
-    { label: "Days", value: parts?.days ?? null },
-    { label: "Hours", value: parts?.hours ?? null },
-    { label: "Minutes", value: parts?.minutes ?? null },
-    { label: "Seconds", value: parts?.seconds ?? null },
+    { label: t("days"), value: parts?.days ?? null },
+    { label: t("hours"), value: parts?.hours ?? null },
+    { label: t("minutes"), value: parts?.minutes ?? null },
+    { label: t("seconds"), value: parts?.seconds ?? null },
   ];
 
   return (

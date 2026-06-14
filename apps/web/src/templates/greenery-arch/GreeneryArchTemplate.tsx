@@ -66,7 +66,7 @@ export function GreeneryArchTemplate({ invitation, fields, heroKey }: TemplatePr
         dateTime={fields.dateTime}
       />
       <Quote quote={fields.quote} />
-      <Greeting message={fields.message} title="소중한 분들을 초대합니다" />
+      <Greeting message={fields.message} titleKey="invitingLovedOnes" />
       <ProfileCards
         profiles={fields.profiles}
         groomName={fields.groomName}
