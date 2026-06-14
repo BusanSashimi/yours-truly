@@ -11,9 +11,13 @@ User=ytapp
 Group=ytapp
 WorkingDirectory=/opt/yours-truly/apps/web
 Environment=NODE_ENV=production
-# -H 127.0.0.1: only nginx on this host may reach the app server directly —
-# the SG already filters :3000, this removes the dependence on it.
-ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000 -H 127.0.0.1
+# Do NOT pass `-H 127.0.0.1`. An explicit bind host + nginx's `X-Forwarded-Proto:
+# https` makes Next build ABSOLUTE redirects/rewrites from the bind host (e.g.
+# https://localhost:3000/en) instead of the public Host, which 500s / dead-redirects
+# every locale path behind the proxy (next-intl). Binding all interfaces is safe:
+# the SG blocks :3000 from the internet, so nginx stays the only ingress. We trade
+# the -H defense-in-depth (now the SG alone) for working i18n redirects.
+ExecStart=/usr/bin/node node_modules/next/dist/bin/next start -p 3000
 Restart=on-failure
 RestartSec=2
 Nice=10
