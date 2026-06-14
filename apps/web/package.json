@@ -12,17 +12,18 @@
   "dependencies": {
     "@yours-truly/shared": "workspace:*",
     "better-auth": "^1.6.16",
+    "next": "15.5.19",
+    "qrcode.react": "^4",
     "react": "19.2.7",
-    "react-dom": "19.2.7",
-    "next": "15.5.19"
+    "react-dom": "19.2.7"
   },
   "devDependencies": {
-    "sass": "^1.83.0",
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "eslint": "^8",
-    "eslint-config-next": "15.5.19"
+    "eslint-config-next": "15.5.19",
+    "sass": "^1.83.0",
+    "typescript": "^5"
   }
 }
