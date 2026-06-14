@@ -3,6 +3,7 @@ import {
   createGuestMessagePresignResponseSchema,
   createGuestUploadResponseSchema,
   createUploadResponseSchema,
+  guestMessageListResponseSchema,
   guestUploadEntrySchema,
   guestUploadListResponseSchema,
   guestbookEntrySchema,
@@ -23,6 +24,7 @@ import {
   type CreateUploadResponse,
   type GuestbookEntry,
   type GuestbookListResponse,
+  type GuestMessageListResponse,
   type GuestUploadEntry,
   type GuestUploadListResponse,
   type Invitation,
@@ -203,4 +205,16 @@ export async function createGuestMessage(
     method: "POST",
     body: JSON.stringify(input),
   });
+}
+
+// Owner inbox (cookie auth): list received messages (photos carry short-lived
+// presigned GET urls) and delete a message.
+export async function getGuestMessages(invitationId: string): Promise<GuestMessageListResponse> {
+  return guestMessageListResponseSchema.parse(
+    await request(`/api/invitations/${invitationId}/messages`),
+  );
+}
+
+export async function deleteGuestMessage(invitationId: string, msgId: string): Promise<void> {
+  await request(`/api/invitations/${invitationId}/messages/${msgId}`, { method: "DELETE" });
 }

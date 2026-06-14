@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { GuestUploadEntry, GuestbookEntry, RsvpEntry } from "@yours-truly/shared";
+import type { GuestMessage, GuestUploadEntry, GuestbookEntry, RsvpEntry } from "@yours-truly/shared";
 import {
+  deleteGuestMessage,
   deleteGuestUpload,
   deleteGuestbookEntry,
   deleteRsvp,
+  getGuestMessages,
   getGuestUploads,
   getGuestbook,
   getRsvps,
@@ -18,12 +20,14 @@ export function ManagementPanel({ invitationId }: { invitationId: string }) {
   const [rsvps, setRsvps] = useState<RsvpEntry[] | null>(null);
   const [guestbook, setGuestbook] = useState<GuestbookEntry[] | null>(null);
   const [uploads, setUploads] = useState<GuestUploadEntry[] | null>(null);
+  const [messages, setMessages] = useState<GuestMessage[] | null>(null);
 
   useEffect(() => {
     let active = true;
     getRsvps(invitationId).then((r) => active && setRsvps(r.responses)).catch(() => active && setRsvps([]));
     getGuestbook(invitationId, { limit: 100 }).then((r) => active && setGuestbook(r.entries)).catch(() => active && setGuestbook([]));
     getGuestUploads(invitationId).then((r) => active && setUploads(r.uploads)).catch(() => active && setUploads([]));
+    getGuestMessages(invitationId).then((r) => active && setMessages(r.messages)).catch(() => active && setMessages([]));
     return () => {
       active = false;
     };
@@ -40,6 +44,10 @@ export function ManagementPanel({ invitationId }: { invitationId: string }) {
   async function removeUpload(id: string) {
     await deleteGuestUpload(invitationId, id);
     setUploads((p) => p?.filter((x) => x.id !== id) ?? null);
+  }
+  async function removeMessage(id: string) {
+    await deleteGuestMessage(invitationId, id);
+    setMessages((p) => p?.filter((x) => x.id !== id) ?? null);
   }
 
   return (
@@ -100,6 +108,34 @@ export function ManagementPanel({ invitationId }: { invitationId: string }) {
         ))}
       </div>
       {uploads?.length === 0 && <p className={styles.empty}>아직 올라온 사진이 없어요.</p>}
+
+      <div className={styles.rowHead} style={{ marginTop: 20 }}>
+        <span>받은 메시지 (비공개) · {messages?.length ?? "…"}</span>
+      </div>
+      <ul className={styles.mgmtList}>
+        {messages?.map((m) => (
+          <li key={m.id} className={styles.mgmtItem}>
+            <div>
+              {m.senderName && <strong>{m.senderName}</strong>}
+              {m.message && <div className={styles.mgmtMeta}>{m.message}</div>}
+              {m.photos.length > 0 && (
+                <div className={styles.msgPhotos}>
+                  {m.photos.map((p) => (
+                    <span key={p.key}>
+                      {/* eslint-disable-next-line @next/next/no-img-element -- presigned private thumbnail */}
+                      <img src={p.url} alt="" className={styles.msgPhoto} />
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <button type="button" className={styles.removeRow} onClick={() => void removeMessage(m.id)}>
+              삭제
+            </button>
+          </li>
+        ))}
+      </ul>
+      {messages?.length === 0 && <p className={styles.empty}>아직 받은 메시지가 없어요.</p>}
     </div>
   );
 }

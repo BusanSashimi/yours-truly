@@ -28,6 +28,7 @@ import { AccountsPanel } from "./panels/AccountsPanel";
 import { InfoTabsPanel } from "./panels/InfoTabsPanel";
 import { QuotePanel } from "./panels/QuotePanel";
 import { ManagementPanel } from "./panels/ManagementPanel";
+import { QrCard } from "./panels/QrCard";
 import styles from "../../dashboard.module.scss";
 
 // The ceremony time is always Korean wall-clock (the guest page renders pinned
@@ -83,6 +84,7 @@ const RICH_KEYS = [
   "tabs",
   "wreathUrl",
   "guestUpload",
+  "guestMessages",
   "rsvpEnabled",
   "guestbookEnabled",
 ] as const;
@@ -289,6 +291,15 @@ export default function InvitationEditorPage({ params }: { params: Promise<{ id:
     setRichKey("guestUpload", keep ? next : undefined);
   }
 
+  const guestMessages = rich.guestMessages ?? {};
+  function updateGuestMessages(
+    patch: Partial<NonNullable<InvitationDesignFields["guestMessages"]>>,
+  ) {
+    const next = { ...guestMessages, ...patch };
+    const keep = next.enabled || next.openDate || next.prompt?.trim();
+    setRichKey("guestMessages", keep ? next : undefined);
+  }
+
   return (
     <>
       <div className={styles.editorHead}>
@@ -307,6 +318,14 @@ export default function InvitationEditorPage({ params }: { params: Promise<{ id:
           공개 페이지 보기 ↗
         </a>
       )}
+
+      <Panel title="QR 메시지·사진" hint="QR 코드로 비공개 메시지 받기">
+        {invitation.status === "published" ? (
+          <QrCard slug={invitation.slug} />
+        ) : (
+          <p className={styles.qrNote}>게시 후 QR이 생성됩니다.</p>
+        )}
+      </Panel>
 
       <form className={styles.form} onSubmit={onSave}>
         <div className={styles.heroField}>
@@ -427,7 +446,7 @@ export default function InvitationEditorPage({ params }: { params: Promise<{ id:
         </Panel>
 
         {/* --- features --- */}
-        <Panel title="기능 설정" hint="참석여부 · 방명록 · 게스트 스냅">
+        <Panel title="기능 설정" hint="참석여부 · 방명록 · 게스트 스냅 · QR 메시지">
           <label className={styles.toggleRow}>
             <span>참석 여부 받기 (RSVP)</span>
             <input
@@ -461,6 +480,33 @@ export default function InvitationEditorPage({ params }: { params: Promise<{ id:
                 onChange={(e) => updateGuestUpload({ openDate: localInputToIso(e.target.value) })}
               />
             </label>
+          )}
+          <label className={styles.toggleRow}>
+            <span>QR 메시지·사진 받기 (비공개)</span>
+            <input
+              type="checkbox"
+              checked={Boolean(guestMessages.enabled)}
+              onChange={(e) => updateGuestMessages({ enabled: e.target.checked })}
+            />
+          </label>
+          {guestMessages.enabled && (
+            <>
+              <label className={styles.field}>
+                <span>안내 문구 (선택)</span>
+                <input
+                  value={guestMessages.prompt ?? ""}
+                  onChange={(e) => updateGuestMessages({ prompt: e.target.value || undefined })}
+                />
+              </label>
+              <label className={styles.field}>
+                <span>메시지 받기 시작 일시 (한국 시간, 선택)</span>
+                <input
+                  type="datetime-local"
+                  value={isoToLocalInput(guestMessages.openDate)}
+                  onChange={(e) => updateGuestMessages({ openDate: localInputToIso(e.target.value) })}
+                />
+              </label>
+            </>
           )}
           <label className={styles.field}>
             <span>관계 시작일 (함께한 시간, 선택)</span>
