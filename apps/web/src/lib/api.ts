@@ -218,3 +218,7 @@ export async function getGuestMessages(invitationId: string): Promise<GuestMessa
 export async function deleteGuestMessage(invitationId: string, msgId: string): Promise<void> {
   await request(`/api/invitations/${invitationId}/messages/${msgId}`, { method: "DELETE" });
 }
+
+export async function markGuestMessageRead(invitationId: string, msgId: string): Promise<void> {
+  await request(`/api/invitations/${invitationId}/messages/${msgId}/read`, { method: "PATCH" });
+}

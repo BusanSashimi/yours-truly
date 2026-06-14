@@ -11,6 +11,7 @@ import {
   getGuestUploads,
   getGuestbook,
   getRsvps,
+  markGuestMessageRead,
 } from "@/lib/api";
 import { assetUrl } from "@/lib/assets";
 import styles from "../../../dashboard.module.scss";
@@ -49,6 +50,17 @@ export function ManagementPanel({ invitationId }: { invitationId: string }) {
     await deleteGuestMessage(invitationId, id);
     setMessages((p) => p?.filter((x) => x.id !== id) ?? null);
   }
+  // Mark-as-read is intentional (a button), not on panel mount — the editor
+  // loads this panel eagerly, so auto-marking would clear the badge unread.
+  async function markAllRead() {
+    const ids = (messages ?? []).filter((m) => !m.readAt).map((m) => m.id);
+    if (ids.length === 0) return;
+    await Promise.all(ids.map((id) => markGuestMessageRead(invitationId, id)));
+    const now = new Date().toISOString();
+    setMessages((p) => p?.map((m) => (m.readAt ? m : { ...m, readAt: now })) ?? null);
+  }
+
+  const unreadMessages = (messages ?? []).filter((m) => !m.readAt).length;
 
   return (
     <div>
@@ -110,12 +122,23 @@ export function ManagementPanel({ invitationId }: { invitationId: string }) {
       {uploads?.length === 0 && <p className={styles.empty}>아직 올라온 사진이 없어요.</p>}
 
       <div className={styles.rowHead} style={{ marginTop: 20 }}>
-        <span>받은 메시지 (비공개) · {messages?.length ?? "…"}</span>
+        <span>
+          받은 메시지 (비공개) · {messages?.length ?? "…"}
+          {unreadMessages > 0 && (
+            <span className={styles.unreadBadge}>새 메시지 {unreadMessages}</span>
+          )}
+        </span>
+        {unreadMessages > 0 && (
+          <button type="button" className={styles.markRead} onClick={() => void markAllRead()}>
+            모두 읽음
+          </button>
+        )}
       </div>
       <ul className={styles.mgmtList}>
         {messages?.map((m) => (
           <li key={m.id} className={styles.mgmtItem}>
             <div>
+              {!m.readAt && <span className={styles.newDot}>NEW</span>}
               {m.senderName && <strong>{m.senderName}</strong>}
               {m.message && <div className={styles.mgmtMeta}>{m.message}</div>}
               {m.photos.length > 0 && (
